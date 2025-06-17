@@ -14,7 +14,6 @@
 
 
 FilesystemStorage::FilesystemStorage(std::string root,bool UseGE) {
-	printf("[%s] creator\n", __func__);
 	m_StorageRoot = root;
 	m_UseGE=UseGE;
 }
@@ -24,7 +23,6 @@ FilesystemStorage::~FilesystemStorage() {
 
 void FilesystemStorage::Process(TilePtr tile) {
 	if (!tile->IsLoaded()) { /* loading */
-		 printf("[%s] not loaded, loading\n", __func__);
 	   std::string path;
 		if (m_UseGE)
 		 path = m_StorageRoot + PathFromCoordsGE(tile->GetX(), tile->GetY(), tile->GetLevel(), tile->GetType());
@@ -60,7 +58,6 @@ void FilesystemStorage::Process(TilePtr tile) {
 			 * THIS is not an error */
 		}
 	} else if (tile->IsSaveable()) { /* saving */
-		printf("[%s] is saveable,saving\n", __func__);
 		std::string subpath;
 		if (m_UseGE)
 		   subpath = PathFromCoordsGE(tile->GetX(), tile->GetY(), tile->GetLevel(), tile->GetType());

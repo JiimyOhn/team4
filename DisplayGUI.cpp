@@ -1,4 +1,4 @@
-﻿//---------------------------------------------------------------------------
+//---------------------------------------------------------------------------
 
 #include <vcl.h>
 #include <new>
@@ -26,8 +26,6 @@
 #include "CPA.h"
 #include "AircraftDB.h"
 #include "csv.h"
-#include "MAPFactory.h"
-#include "hex_font.h"
 
 #define AIRCRAFT_DATABASE_URL   "https://opensky-network.org/datasets/metadata/aircraftDatabase.zip"
 #define AIRCRAFT_DATABASE_FILE   "aircraftDatabase.csv"
@@ -1634,130 +1632,91 @@ void __fastcall TForm1::TimeToGoTrackBarChange(TObject *Sender)
   TimeToGoText->Caption=TimeToChar(hmsm);
 }
 //---------------------------------------------------------------------------
-#include "MAPFactory.h"
-#include "IMAPProvider.h"
-#include <memory>
 void __fastcall TForm1::LoadMap(int Type)
 {
-    // 1. Provider 생성
-    AnsiString HomeDir = ExtractFilePath(ExtractFileDir(Application->ExeName));
-		std::unique_ptr<IMAPProvider> provider = MAPFactory::Create(static_cast<MapType>(Type), HomeDir.c_str(), LoadMapFromInternet);
-    if (!provider) throw Sysutils::Exception("Unknown map type");
+   AnsiString  HomeDir = ExtractFilePath(ExtractFileDir(Application->ExeName));
+    if (Type==GoogleMaps)
+   {
+     HomeDir+= "..\\GoogleMap";
+     if (LoadMapFromInternet) HomeDir+= "_Live\\";
+     else  HomeDir+= "\\";
+     std::string cachedir;
+     cachedir=HomeDir.c_str();
 
-    // 2. 캐시 디렉터리는  생성
-    std::string cachedir = provider->GetCacheDir();
      if (mkdir(cachedir.c_str()) != 0 && errno != EEXIST)
 	    throw Sysutils::Exception("Can not create cache directory");
 
-    // 3. FilesystemStorage 생성 및 TileManager, Layer, View 연결
-    //    (provider가 storage를 직접 관리하지 않고, 외부에서 생성/공유)
-    // if (g_EarthView) delete g_EarthView;
-    // if (g_GETileManager) delete g_GETileManager;
-    // if (g_MasterLayer) delete g_MasterLayer;
-    // if (g_Storage) delete g_Storage;
+     g_Storage = new FilesystemStorage(cachedir,true);
+     if (LoadMapFromInternet)
+       {
+	    g_Keyhole = new KeyholeConnection(GoogleMaps);
+        g_Keyhole->SetSaveStorage(g_Storage);
+	    g_Storage->SetNextLoadStorage(g_Keyhole);
+	   }
+    }
+  else if (Type==SkyVector_VFR)
+   {
+     HomeDir+= "..\\VFR_Map";
+     if (LoadMapFromInternet) HomeDir+= "_Live\\";
+     else  HomeDir+= "\\";
+     std::string cachedir;
+     cachedir=HomeDir.c_str();
 
-    g_Storage = new FilesystemStorage(cachedir, true);
+     if (mkdir(cachedir.c_str()) != 0 && errno != EEXIST)
+	    throw Sysutils::Exception("Can not create cache directory");
 
-    // provider에 storage를 주입 (다운로드 연동을 위해)
-    provider->SetStorage(g_Storage);
-    provider->Init();
-	printf("[%s] ------------> Type(%d)\n", __func__, Type);
-    g_GETileManager = new TileManager(g_Storage);
-    g_MasterLayer = new GoogleLayer(g_GETileManager);
-    g_EarthView = new FlatEarthView(g_MasterLayer);
-    g_EarthView->Resize(ObjectDisplay->Width, ObjectDisplay->Height);
+     g_Storage = new FilesystemStorage(cachedir,true);
+     if (LoadMapFromInternet)
+       {
+	    g_Keyhole = new KeyholeConnection(SkyVector_VFR);
+        g_Keyhole->SetSaveStorage(g_Storage);
+	    g_Storage->SetNextLoadStorage(g_Keyhole);
+	   }
+    }
+  else if (Type==SkyVector_IFR_Low)
+   {
+     HomeDir+= "..\\IFR_Low_Map";
+     if (LoadMapFromInternet) HomeDir+= "_Live\\";
+     else  HomeDir+= "\\";
+     std::string cachedir;
+     cachedir=HomeDir.c_str();
 
-    // provider는 unique_ptr로 관리(필요시 멤버 변수로 보관)
-    // this->currentProvider = std::move(provider);
+     if (mkdir(cachedir.c_str()) != 0 && errno != EEXIST)
+	    throw Sysutils::Exception("Can not create cache directory");
+
+     g_Storage = new FilesystemStorage(cachedir,true);
+     if (LoadMapFromInternet)
+       {
+	    g_Keyhole = new KeyholeConnection(SkyVector_IFR_Low);
+        g_Keyhole->SetSaveStorage(g_Storage);
+	    g_Storage->SetNextLoadStorage(g_Keyhole);
+	   }
+    }
+  else if (Type==SkyVector_IFR_High)
+   {
+     HomeDir+= "..\\IFR_High_Map";
+     if (LoadMapFromInternet) HomeDir+= "_Live\\";
+     else  HomeDir+= "\\";
+     std::string cachedir;
+     cachedir=HomeDir.c_str();
+
+     if (mkdir(cachedir.c_str()) != 0 && errno != EEXIST)
+	    throw Sysutils::Exception("Can not create cache directory");
+
+     g_Storage = new FilesystemStorage(cachedir,true);
+     if (LoadMapFromInternet)
+       {
+	    g_Keyhole = new KeyholeConnection(SkyVector_IFR_High);
+        g_Keyhole->SetSaveStorage(g_Storage);
+	    g_Storage->SetNextLoadStorage(g_Keyhole);
+	   }
+    }
+   g_GETileManager = new TileManager(g_Storage);
+   g_MasterLayer = new GoogleLayer(g_GETileManager);
+
+   g_EarthView = new FlatEarthView(g_MasterLayer);
+   g_EarthView->Resize(ObjectDisplay->Width,ObjectDisplay->Height);
 }
-
-// void __fastcall TForm1::LoadMap(int Type)
-// {
-//    AnsiString  HomeDir = ExtractFilePath(ExtractFileDir(Application->ExeName));
-// 	printf("[%s] LoadMapFromInternet(%d)\n", __func__, LoadMapFromInternet);
-//    if (Type==GoogleMaps)
-//    {
-//      HomeDir+= "..\\GoogleMap";
-//      if (LoadMapFromInternet) HomeDir+= "_Live\\";
-//      else  HomeDir+= "\\";
-//      std::string cachedir;
-//      cachedir=HomeDir.c_str();
-
-//      if (mkdir(cachedir.c_str()) != 0 && errno != EEXIST)
-// 	    throw Sysutils::Exception("Can not create cache directory");
-
-//      g_Storage = new FilesystemStorage(cachedir,true);
-//      if (LoadMapFromInternet)
-//        {
-// 	    g_Keyhole = new KeyholeConnection(GoogleMaps);
-//         g_Keyhole->SetSaveStorage(g_Storage);
-// 	    g_Storage->SetNextLoadStorage(g_Keyhole);
-// 	   }
-//     }
-//   else if (Type==SkyVector_VFR)
-//    {
-//      HomeDir+= "..\\VFR_Map";
-//      if (LoadMapFromInternet) HomeDir+= "_Live\\";
-//      else  HomeDir+= "\\";
-//      std::string cachedir;
-//      cachedir=HomeDir.c_str();
-
-//      if (mkdir(cachedir.c_str()) != 0 && errno != EEXIST)
-// 	    throw Sysutils::Exception("Can not create cache directory");
-
-//      g_Storage = new FilesystemStorage(cachedir,true);
-//      if (LoadMapFromInternet)
-//        {
-// 	    g_Keyhole = new KeyholeConnection(SkyVector_VFR);
-//         g_Keyhole->SetSaveStorage(g_Storage);
-// 	    g_Storage->SetNextLoadStorage(g_Keyhole);
-// 	   }
-//     }
-//   else if (Type==SkyVector_IFR_Low)
-//    {
-//      HomeDir+= "..\\IFR_Low_Map";
-//      if (LoadMapFromInternet) HomeDir+= "_Live\\";
-//      else  HomeDir+= "\\";
-//      std::string cachedir;
-//      cachedir=HomeDir.c_str();
-
-//      if (mkdir(cachedir.c_str()) != 0 && errno != EEXIST)
-// 	    throw Sysutils::Exception("Can not create cache directory");
-
-//      g_Storage = new FilesystemStorage(cachedir,true);
-//      if (LoadMapFromInternet)
-//        {
-// 	    g_Keyhole = new KeyholeConnection(SkyVector_IFR_Low);
-//         g_Keyhole->SetSaveStorage(g_Storage);
-// 	    g_Storage->SetNextLoadStorage(g_Keyhole);
-// 	   }
-//     }
-//   else if (Type==SkyVector_IFR_High)
-//    {
-//      HomeDir+= "..\\IFR_High_Map";
-//      if (LoadMapFromInternet) HomeDir+= "_Live\\";
-//      else  HomeDir+= "\\";
-//      std::string cachedir;
-//      cachedir=HomeDir.c_str();
-
-//      if (mkdir(cachedir.c_str()) != 0 && errno != EEXIST)
-// 	    throw Sysutils::Exception("Can not create cache directory");
-
-//      g_Storage = new FilesystemStorage(cachedir,true);
-//      if (LoadMapFromInternet)
-//        {
-// 	    g_Keyhole = new KeyholeConnection(SkyVector_IFR_High);
-//         g_Keyhole->SetSaveStorage(g_Storage);
-// 	    g_Storage->SetNextLoadStorage(g_Keyhole);
-// 	   }
-//     }
-// 	printf("[%s] ------------> Type(%d)\n", __func__, Type);
-//    g_GETileManager = new TileManager(g_Storage);
-//    g_MasterLayer = new GoogleLayer(g_GETileManager);
-
-//    g_EarthView = new FlatEarthView(g_MasterLayer);
-//    g_EarthView->Resize(ObjectDisplay->Width,ObjectDisplay->Height);
-// }
 //---------------------------------------------------------------------------
 void __fastcall TForm1::MapComboBoxChange(TObject *Sender)
 {

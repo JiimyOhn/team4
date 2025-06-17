@@ -1,4 +1,4 @@
-﻿//---------------------------------------------------------------------------
+//---------------------------------------------------------------------------
 
 
 #pragma hdrstop
@@ -15,7 +15,7 @@
 
 // https://skyvector.com/api/chartDataFPL
 
-/*
+
 #define GOOGLE_URL               "http://mt1.google.com"
 #define SKYVECTOR_URL            "http://t.skyvector.com"
 #define SKYVECTOR_CHART_VPS      "301"
@@ -60,35 +60,12 @@ KeyholeConnection::KeyholeConnection(int type)
 	if ((m_GEFetch = gefetch_init(url)) == 0)
 		throw Exception("gefetch_init() failed");
 }
-*/
-KeyholeConnection::KeyholeConnection(const std::string& url, IMAPProvider* provider)
-    : url(url), m_GEFetch(nullptr), provider(provider) {
-    m_GEFetch = gefetch_init(url.c_str());
-    if (!m_GEFetch)
-        throw Exception("gefetch_init() failed");
+
+KeyholeConnection::~KeyholeConnection() {
+	if (m_GEFetch)
+		gefetch_cleanup(m_GEFetch);
 }
 
-KeyholeConnection::KeyholeConnection(const std::string& url, const std::string& key, const std::string& chart, const std::string& edition, IMAPProvider* provider)
-    : url(url), key(key), chart(chart), edition(edition), m_GEFetch(nullptr), provider(provider) {
-    m_GEFetch = gefetch_init(url.c_str());
-    if (!m_GEFetch)
-        throw Exception("gefetch_init() failed");
-}
-
-KeyholeConnection::~KeyholeConnection() noexcept {
-    if (m_GEFetch)
-        gefetch_cleanup(m_GEFetch);
-}
-
-void KeyholeConnection::Process(TilePtr tile) {
-    if (provider) {
-        provider->FetchTile(tile);
-    } else {
-        // 예외 처리 또는 기본 동작
-        tile->Null();
-    }
-}
-/*
 void KeyholeConnection::Process(TilePtr tile) {
 	gefetch_error res;
     if (ServerType== GoogleMaps)
@@ -106,7 +83,7 @@ void KeyholeConnection::Process(TilePtr tile) {
 		return;
 	}
 	else if (res != GEFETCH_OK) {
-		sleep(1);	
+		sleep(1);	/* don't do a DOS in case of any problems */
 		throw Exception("gefetch_fetch_image() failed");
 	}
 
@@ -118,4 +95,5 @@ void KeyholeConnection::Process(TilePtr tile) {
 		delete buf;
 		throw;
 	}
-}*/
+}
+
