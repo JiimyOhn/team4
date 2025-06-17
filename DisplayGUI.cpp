@@ -9,6 +9,7 @@
 #include <stdlib.h>
 #include <filesystem>
 #include <fileapi.h>
+#include "hex_font.h"
 
 
 #pragma hdrstop
@@ -213,7 +214,7 @@ __fastcall TForm1::TForm1(TComponent* Owner)
  MapCenterLat=MAP_CENTER_LAT;
  MapCenterLon=MAP_CENTER_LON;
 
- LoadMapFromInternet=false;
+ LoadMapFromInternet=true;
  MapComboBox->ItemIndex=GoogleMaps;
  //MapComboBox->ItemIndex=SkyVector_VFR;
  //MapComboBox->ItemIndex=SkyVector_IFR_Low;
@@ -260,7 +261,7 @@ __fastcall TForm1::~TForm1()
 
 }
 //---------------------------------------------------------------------------
-void __fastcall  TForm1::SetMapCenter(double &x, double &y)
+void __fastcall TForm1::SetMapCenter(double &x, double &y)
 {
   double siny;
   x=(MapCenterLon+0.0)/360.0;
