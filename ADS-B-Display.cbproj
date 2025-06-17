@@ -93,8 +93,8 @@
         <Icon_MainIcon>$(BDS)\bin\cbuilder_PROJECTICON.ico</Icon_MainIcon>
         <UWP_CppLogo44>$(BDS)\bin\Artwork\Windows\UWP\cppreg_UwpDefault_44.png</UWP_CppLogo44>
         <UWP_CppLogo150>$(BDS)\bin\Artwork\Windows\UWP\cppreg_UwpDefault_150.png</UWP_CppLogo150>
-        <IncludePath>Map\MapSrc\MapProvider\;Map\MapSrc\;..\..\..\..\..\Desktop\ADS-B-2025\ADS-B-Display\;$(IncludePath)</IncludePath>
-        <ILINK_LibraryPath>Map\MapSrc\MapProvider\;Map\MapSrc\;..\..\..\..\..\Desktop\ADS-B-2025\ADS-B-Display\;$(ILINK_LibraryPath)</ILINK_LibraryPath>
+        <IncludePath>Map\MapSrc\;..\..\..\..\..\Desktop\ADS-B-2025\ADS-B-Display\;$(IncludePath)</IncludePath>
+        <ILINK_LibraryPath>Map\MapSrc\;..\..\..\..\..\Desktop\ADS-B-2025\ADS-B-Display\;$(ILINK_LibraryPath)</ILINK_LibraryPath>
         <SanitizedProjectName>ADS-B-Display</SanitizedProjectName>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win32)'!=''">
@@ -277,36 +277,6 @@
         </CppCompile>
         <None Include="Map\MapSrc\Layer.h">
             <BuildOrder>25</BuildOrder>
-        </None>
-        <CppCompile Include="Map\MapSrc\MapProvider\GoogleMapsProvider.cpp">
-            <BuildOrder>40</BuildOrder>
-        </CppCompile>
-        <None Include="Map\MapSrc\MapProvider\GoogleMapsProvider.h">
-            <BuildOrder>41</BuildOrder>
-        </None>
-        <None Include="Map\MapSrc\MapProvider\IMAPProvider.h">
-            <BuildOrder>42</BuildOrder>
-        </None>
-        <None Include="Map\MapSrc\MapProvider\MAPFactory.h">
-            <BuildOrder>43</BuildOrder>
-        </None>
-        <CppCompile Include="Map\MapSrc\MapProvider\SkyVectorIFRHighProvider.cpp">
-            <BuildOrder>44</BuildOrder>
-        </CppCompile>
-        <None Include="Map\MapSrc\MapProvider\SkyVectorIFRHighProvider.h">
-            <BuildOrder>45</BuildOrder>
-        </None>
-        <CppCompile Include="Map\MapSrc\MapProvider\SkyVectorIFRLowProvider.cpp">
-            <BuildOrder>46</BuildOrder>
-        </CppCompile>
-        <None Include="Map\MapSrc\MapProvider\SkyVectorIFRLowProvider.h">
-            <BuildOrder>47</BuildOrder>
-        </None>
-        <CppCompile Include="Map\MapSrc\MapProvider\SkyVectorVFRProvider.cpp">
-            <BuildOrder>48</BuildOrder>
-        </CppCompile>
-        <None Include="Map\MapSrc\MapProvider\SkyVectorVFRProvider.h">
-            <BuildOrder>49</BuildOrder>
         </None>
         <CppCompile Include="Map\MapSrc\MasterLayer.cpp">
             <DependentOn>Map\MapSrc\MasterLayer.h</DependentOn>
