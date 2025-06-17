@@ -1,4 +1,4 @@
-//---------------------------------------------------------------------------
+﻿//---------------------------------------------------------------------------
 
 #include <vcl.h>
 #include <new>
@@ -9,6 +9,10 @@
 #include <stdlib.h>
 #include <filesystem>
 #include <fileapi.h>
+#include <StdCtrls.hpp>
+#include <Forms.hpp>
+#include <thread>
+//---------------------------------------------------------------------------
 
 #pragma hdrstop
 
@@ -229,6 +233,7 @@ __fastcall TForm1::TForm1(TComponent* Owner)
  BigQueryRowCount=0;
  BigQueryFileCount=0;
  InitAircraftDB(AircraftDBPathFileName);
+ connected = false;
  printf("init complete\n");
 }
 //---------------------------------------------------------------------------
@@ -247,7 +252,7 @@ __fastcall TForm1::~TForm1()
 
 }
 //---------------------------------------------------------------------------
-void __fastcall  TForm1::SetMapCenter(double &x, double &y)
+void __fastcall TForm1::SetMapCenter(double &x, double &y)
 {
   double siny;
   x=(MapCenterLon+0.0)/360.0;
@@ -691,7 +696,7 @@ void __fastcall TForm1::Exit1Click(TObject *Sender)
 	AreaTemp->NumPoints++;
 	ObjectDisplay->Repaint();
  }
- }
+}
 //---------------------------------------------------------------------------
  void __fastcall TForm1::HookTrack(int X, int Y,bool CPA_Hook)
  {
@@ -1131,33 +1136,141 @@ void __fastcall TTCPClientRawHandleThread::HandleInput(void)
 //---------------------------------------------------------------------------
 void __fastcall TForm1::RawConnectButtonClick(TObject *Sender)
 {
- IdTCPClientRaw->Host=RawIpAddress->Text;
- IdTCPClientRaw->Port=30002;
+	Progressform->CancelRequested = false;
+	connected = false;
+//	Progressform->ShowProgress("Connecting to RAW ADS-B server...");
+	IdTCPClientRaw->Host = RawIpAddress->Text;
+	IdTCPClientRaw->Port = 30002;
 
- if ((RawConnectButton->Caption=="Raw Connect") && (Sender!=NULL))
- {
-  try
-   {
-   IdTCPClientRaw->Connect();
-   TCPClientRawHandleThread = new TTCPClientRawHandleThread(true);
-   TCPClientRawHandleThread->UseFileInsteadOfNetwork=false;
-   TCPClientRawHandleThread->FreeOnTerminate=TRUE;
-   TCPClientRawHandleThread->Resume();
-   }
-   catch (const EIdException& e)
-   {
-    ShowMessage("Error while connecting: "+e.Message);
-   }
- }
- else
-  {
-	TCPClientRawHandleThread->Terminate();
-	IdTCPClientRaw->Disconnect();
-	IdTCPClientRaw->IOHandler->InputBuffer->Clear();
-	RawConnectButton->Caption="Raw Connect";
-	RawPlaybackButton->Enabled=true;
-  }
- }
+	// 별도 스레드에서 Cancel 버튼 감시
+	Progressform->ShowProgress("Connecting to RAW ADS-B server...");
+	std::thread cancelThread([&]() {
+		if (Progressform) {
+			while (!Progressform->CancelRequested) {
+				Sleep(50);
+			}
+			if (Progressform->CancelRequested) {
+			// 메인 스레드에서 연결 중단
+				printf("cancelThread cancelRequested\n");
+				Progressform->ShowProgress("Cancel to disconnect RAW ADS-B server...");
+				TThread::Synchronize(nullptr, [&]() {
+				std::lock_guard<std::mutex> lock(cancel_connection_mutex);
+				if (connected) {
+					IdTCPClientRaw->Disconnect();
+				}
+				});
+			printf("before HideProgress\n");
+			Progressform->HideProgress();
+			printf("after HideProgress\n");
+			}
+		}
+	});
+	cancelThread.detach();
+
+	std::thread connectThread([&]() {
+	   if ((RawConnectButton->Caption=="Raw Connect") && (Sender!=NULL))
+	{
+		try
+		{
+			// 실제 연결 시도 전에 10% 등으로 설정 가능 (선택 사항)
+			Progressform->UpdateProgress(10);
+			IdTCPClientRaw->Connect(); // 이 부분은 블로킹 호출입니다.
+			printf("[OYJ_DBG] after connection\n");
+			{
+				std::lock_guard<std::mutex> lock(cancel_connection_mutex);
+				connected = true;
+			}
+			// 연결 성공 후 100%로 설정 가능 (선택 사항)
+			Progressform->UpdateProgress(100);
+			Sleep(200); // 사용자가 100%를 볼 수 있도록 잠시 대기 (UI 경험상)
+
+
+			TCPClientRawHandleThread = new TTCPClientRawHandleThread(true);
+			TCPClientRawHandleThread->UseFileInsteadOfNetwork=false;
+			TCPClientRawHandleThread->FreeOnTerminate=TRUE;
+			TCPClientRawHandleThread->Resume();
+
+		}
+		catch (const EIdException& e)
+		{
+			printf("try catch\n");
+//			Progressform->ShowProgress("Error while connecting.");
+//			Progressform->UpdateProgress(0);
+//			Progressform->HideProgress();
+//			if (IdTCPClientRaw->Connected) {
+//				ShowMessage("Error while connecting. Please check the IP address or network connection!");
+//			}
+			Progressform->ShowProgress("Error while connecting.");
+            Progressform->Cancel->Caption("OK");
+			Progressform->UpdateProgress(0);
+	//		ShowMessage("Error while connecting: "+e.Message);
+	//		Progressform->ShowProgress("Error while connecting. Please check the IP address or network connection!");
+	//		Progressform->HideProgress();
+	//		Progressform->UpdateProgress(0);
+	//		Progressform->HideProgress(); // 여기서 숨길 수도 있습니다.
+			printf("try catch end\n");
+		}
+	}
+	else
+	{
+		printf("tttttttt\n");
+		if(TCPClientRawHandleThread) // 스레드가 생성된 경우에만 Terminate 호출
+		{
+			TCPClientRawHandleThread->Terminate();
+		}
+		IdTCPClientRaw->Disconnect();
+		if(IdTCPClientRaw->IOHandler) // IOHandler가 할당된 경우에만 Clear 호출
+		{
+			IdTCPClientRaw->IOHandler->InputBuffer->Clear();
+		}
+		RawConnectButton->Caption="Raw Connect";
+		RawPlaybackButton->Enabled=true;
+	}
+	});
+	connectThread.detach();
+	printf("111111111111111\n");
+	/*
+	if ((RawConnectButton->Caption == "Raw Connect") && (Sender != NULL))
+	{
+		try
+		{
+			Progressform->UpdateProgress(10);
+			IdTCPClientRaw->Connect(); // 블로킹 호출
+			Progressform->UpdateProgress(100);
+		  //  Sleep(200);
+
+			TCPClientRawHandleThread = new TTCPClientRawHandleThread(true);
+			TCPClientRawHandleThread->UseFileInsteadOfNetwork = false;
+			TCPClientRawHandleThread->FreeOnTerminate = TRUE;
+			TCPClientRawHandleThread->Resume();
+		}
+		catch (const EIdException& e)
+		{
+		   // ShowMessage("Error while connecting: " + e.Message);
+		}
+	}
+	else
+	{
+		if (TCPClientRawHandleThread)
+			TCPClientRawHandleThread->Terminate();
+		IdTCPClientRaw->Disconnect();
+		if (IdTCPClientRaw->IOHandler)
+			IdTCPClientRaw->IOHandler->InputBuffer->Clear();
+        RawConnectButton->Caption = "Raw Connect";
+        RawPlaybackButton->Enabled = true;
+	}
+	*/
+//	Progressform->HideProgress();
+
+	// 스레드 종료 대기 및 정리
+
+ //	printf("thread destroy!\n");
+//	Progressform->CancelRequested = true;
+//	if (cancelThread.joinable())
+ //		cancelThread.join();
+//	printf("clean!\n");
+
+}
 //---------------------------------------------------------------------------
 void __fastcall TForm1::IdTCPClientRawConnected(TObject *Sender)
 {
@@ -1262,7 +1375,7 @@ void __fastcall TTCPClientRawHandleThread::Execute(void)
 	 {
 	  try {
 		   if (!Form1->IdTCPClientRaw->Connected()) Terminate();
-	       StringMsgBuffer=Form1->IdTCPClientRaw->IOHandler->ReadLn();
+		   StringMsgBuffer=Form1->IdTCPClientRaw->IOHandler->ReadLn();
 		  }
        catch (...)
 		{
@@ -1939,70 +2052,70 @@ void __fastcall TForm1::LoadARTCCBoundaries1Click(TObject *Sender)
 //---------------------------------------------------------------------------
 static int FinshARTCCBoundary(void)
 {
-  int or1=orientation2D_Polygon( Form1->AreaTemp->Points,Form1->AreaTemp->NumPoints);
-  if (or1==0)
-   {
-	TArea *Temp;
-	Temp= Form1->AreaTemp;
-	Form1->AreaTemp=NULL;
-	delete  Temp;
-	printf("Degenerate Polygon\n");
-	return(-1);
-   }
-  if (or1==CLOCKWISE)
-  {
-	DWORD i;
-
-	memcpy(Form1->AreaTemp->PointsAdj,Form1->AreaTemp->Points,sizeof(Form1->AreaTemp->Points));
-	for (i = 0; i <Form1->AreaTemp->NumPoints; i++)
+	int or1=orientation2D_Polygon( Form1->AreaTemp->Points,Form1->AreaTemp->NumPoints);
+	if (or1==0)
 	 {
-	   memcpy(Form1->AreaTemp->Points[i],
-			 Form1->AreaTemp->PointsAdj[Form1->AreaTemp->NumPoints-1-i],sizeof( pfVec3));
+	  TArea *Temp;
+	  Temp= Form1->AreaTemp;
+	  Form1->AreaTemp=NULL;
+	  delete  Temp;
+	  printf("Degenerate Polygon\n");
+	  return(-1);
 	 }
-  }
-  if (checkComplex( Form1->AreaTemp->Points,Form1->AreaTemp->NumPoints))
+	if (or1==CLOCKWISE)
+	{
+	  DWORD i;
+  
+	  memcpy(Form1->AreaTemp->PointsAdj,Form1->AreaTemp->Points,sizeof(Form1->AreaTemp->Points));
+	  for (i = 0; i <Form1->AreaTemp->NumPoints; i++)
+	   {
+		 memcpy(Form1->AreaTemp->Points[i],
+			   Form1->AreaTemp->PointsAdj[Form1->AreaTemp->NumPoints-1-i],sizeof( pfVec3));
+	   }
+	}
+	if (checkComplex( Form1->AreaTemp->Points,Form1->AreaTemp->NumPoints))
+	 {
+	  TArea *Temp;
+	  Temp= Form1->AreaTemp;
+	  Form1->AreaTemp=NULL;
+	  delete  Temp;
+	  printf("Polygon is Complex\n");
+	  return(-2);
+	 }
+	DWORD Row,Count,i;
+  
+  
+   Count=Form1->Areas->Count;
+   for (i = 0; i < Count; i++)
    {
-	TArea *Temp;
-	Temp= Form1->AreaTemp;
-	Form1->AreaTemp=NULL;
-	delete  Temp;
-	printf("Polygon is Complex\n");
-    return(-2);
+	TArea *Area = (TArea *)Form1->Areas->Items[i];
+	if (Area->Name==Form1->AreaTemp->Name) {
+  
+	 TArea *Temp;
+	 Temp= Form1->AreaTemp;
+	 printf("Duplicate Area Name %s\n",Form1->AreaTemp->Name.c_str());;
+	 Form1->AreaTemp=NULL;
+	 delete  Temp;
+	 return(-3);
+	 }
    }
-  DWORD Row,Count,i;
-
-
- Count=Form1->Areas->Count;
- for (i = 0; i < Count; i++)
- {
-  TArea *Area = (TArea *)Form1->Areas->Items[i];
-  if (Area->Name==Form1->AreaTemp->Name) {
-
-   TArea *Temp;
-   Temp= Form1->AreaTemp;
-   printf("Duplicate Area Name %s\n",Form1->AreaTemp->Name.c_str());;
+  
+   triangulatePoly(Form1->AreaTemp->Points,Form1->AreaTemp->NumPoints,
+				   &Form1->AreaTemp->Triangles);
+  
+   Form1->AreaTemp->Color=TColor(PopularColors[CurrentColor]);
+   CurrentColor++ ;
+   CurrentColor=CurrentColor%NumColors;
+   Form1->Areas->Add(Form1->AreaTemp);
+   Form1->AreaListView->Items->BeginUpdate();
+   Form1->AreaListView->Items->Add();
+   Row=Form1->AreaListView->Items->Count-1;
+   Form1->AreaListView->Items->Item[Row]->Caption=Form1->AreaTemp->Name;
+   Form1->AreaListView->Items->Item[Row]->Data=Form1->AreaTemp;
+   Form1->AreaListView->Items->Item[Row]->SubItems->Add("");
+   Form1->AreaListView->Items->EndUpdate();
    Form1->AreaTemp=NULL;
-   delete  Temp;
-   return(-3);
-   }
- }
-
- triangulatePoly(Form1->AreaTemp->Points,Form1->AreaTemp->NumPoints,
-				 &Form1->AreaTemp->Triangles);
-
- Form1->AreaTemp->Color=TColor(PopularColors[CurrentColor]);
- CurrentColor++ ;
- CurrentColor=CurrentColor%NumColors;
- Form1->Areas->Add(Form1->AreaTemp);
- Form1->AreaListView->Items->BeginUpdate();
- Form1->AreaListView->Items->Add();
- Row=Form1->AreaListView->Items->Count-1;
- Form1->AreaListView->Items->Item[Row]->Caption=Form1->AreaTemp->Name;
- Form1->AreaListView->Items->Item[Row]->Data=Form1->AreaTemp;
- Form1->AreaListView->Items->Item[Row]->SubItems->Add("");
- Form1->AreaListView->Items->EndUpdate();
- Form1->AreaTemp=NULL;
- return 0 ;
+   return 0 ;
 }
 //---------------------------------------------------------------------------
 

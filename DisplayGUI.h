@@ -24,6 +24,9 @@
 #include <IdTCPClient.hpp>
 #include <IdTCPConnection.hpp>
 #include "cspin.h"
+#include <Progressform.h>
+#include <mutex>
+
 
 typedef float T_GL_Color[4];
 
@@ -120,6 +123,7 @@ __published:	// IDE-managed Components
 	TLabel *Label17;
 	TEdit *RawIpAddress;
 	TIdTCPClient *IdTCPClientRaw;
+
 	TSaveDialog *RecordRawSaveDialog;
 	TOpenDialog *PlaybackRawDialog;
 	TCheckBox *CycleImages;
@@ -222,6 +226,8 @@ __published:	// IDE-managed Components
 	void __fastcall LoadARTCCBoundaries1Click(TObject *Sender);
 
 private:	// User declarations
+	std::mutex cancel_connection_mutex;
+	bool connected;
 
 
 public:		// User declarations

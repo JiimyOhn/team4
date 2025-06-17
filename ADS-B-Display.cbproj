@@ -331,6 +331,12 @@
             <DependentOn>PointInPolygon.h</DependentOn>
             <BuildOrder>32</BuildOrder>
         </CppCompile>
+        <CppCompile Include="Progressform.cpp">
+            <Form>Progressform</Form>
+            <FormType>dfm</FormType>
+            <DependentOn>Progressform.h</DependentOn>
+            <BuildOrder>40</BuildOrder>
+        </CppCompile>
         <CppCompile Include="SBS_Message.cpp">
             <DependentOn>SBS_Message.h</DependentOn>
             <BuildOrder>40</BuildOrder>
@@ -346,6 +352,7 @@
             <DependentOn>TriangulatPoly.h</DependentOn>
             <BuildOrder>32</BuildOrder>
         </CppCompile>
+        <FormResources Include="Progressform.dfm"/>
         <FormResources Include="DisplayGUI.dfm"/>
         <FormResources Include="AreaDialog.dfm"/>
         <BuildConfiguration Include="Base">
