@@ -1,15 +1,7 @@
 # ADS-B Display V4.2 리팩토링 요약
 ---
 ## 클래스 다이어그램
-
-### 1. 변경 전
-
-![Map Class Diagram](MAP.png)
-
-### 2. 변경 후
-
 ![MapProvider Class Diagram](MAPProvider.png)
-
 ---
 
 ## 개요
