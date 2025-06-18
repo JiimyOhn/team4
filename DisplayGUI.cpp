@@ -1192,9 +1192,10 @@ void __fastcall TTCPClientRawHandleThread::HandleInput(void)
 void __fastcall TForm1::RawConnectButtonClick(TObject *Sender)
 {
 	NetworkConnectionStatusGUI->CancelRequested = false;
+	this->RawConnectButton->Enabled = false;
 	{
 		std::lock_guard<std::mutex> lock(cancel_connection_mutex);
-		connected = true;
+		connected = false;
 	}
 	IdTCPClientRaw->Host = RawIpAddress->Text;
 	IdTCPClientRaw->Port = 30002;
@@ -1207,8 +1208,6 @@ void __fastcall TForm1::RawConnectButtonClick(TObject *Sender)
 				Sleep(50);
 			}
 			if (NetworkConnectionStatusGUI->CancelRequested) {
-			// 메인 스레드에서 연결 중단
-				printf("cancelThread cancelRequested\n");
 				NetworkConnectionStatusGUI->ShowProgress("Cancel to disconnect RAW ADS-B server...");
 				NetworkConnectionStatusGUI->SetCancelButtonCaption("Cancel");
 				TThread::Synchronize(nullptr, [&]() {
@@ -1224,6 +1223,7 @@ void __fastcall TForm1::RawConnectButtonClick(TObject *Sender)
 					}
 				});
 				NetworkConnectionStatusGUI->HideProgress();
+				this->RawConnectButton->Enabled = true;
 			}
 		}
 	});
@@ -1237,10 +1237,6 @@ void __fastcall TForm1::RawConnectButtonClick(TObject *Sender)
 			// 실제 연결 시도 전에 10% 등으로 설정 가능 (선택 사항)
 			NetworkConnectionStatusGUI->UpdateProgress(10);
 			IdTCPClientRaw->Connect(); // 이 부분은 블로킹 호출입니다.
-			{
-				std::lock_guard<std::mutex> lock(cancel_connection_mutex);
-				connected = true;
-			}
 			// 연결 성공 후 100%로 설정 가능 (선택 사항)
 			NetworkConnectionStatusGUI->UpdateProgress(100);
 			Sleep(200); // 사용자가 100%를 볼 수 있도록 잠시 대기 (UI 경험상)
@@ -1258,6 +1254,7 @@ void __fastcall TForm1::RawConnectButtonClick(TObject *Sender)
 				NetworkConnectionStatusGUI->ShowProgress("Error while connecting. Please check the IP address or network connection!");
 				NetworkConnectionStatusGUI->SetCancelButtonCaption("OK");
 				NetworkConnectionStatusGUI->UpdateProgress(0);
+				this->RawConnectButton->Enabled = true;
 			}
 		}
 	}
@@ -1285,11 +1282,16 @@ void __fastcall TForm1::IdTCPClientRawConnected(TObject *Sender)
    IdTCPClientRaw->Socket->Binding->SetKeepAliveValues(true,60*1000,15*1000);
    RawConnectButton->Caption="Raw Disconnect";
    RawPlaybackButton->Enabled=false;
+   	{
+		std::lock_guard<std::mutex> lock(cancel_connection_mutex);
+		connected = true;
+	}
 }
 //---------------------------------------------------------------------------
 void __fastcall TForm1::IdTCPClientRawDisconnected(TObject *Sender)
 {
   TCPClientRawHandleThread->Terminate();
+  connected = false;
 }
 //---------------------------------------------------------------------------
 void __fastcall TForm1::RawRecordButtonClick(TObject *Sender)
