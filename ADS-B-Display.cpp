@@ -6,6 +6,7 @@
 //---------------------------------------------------------------------------
 USEFORM("DisplayGUI.cpp", Form1);
 USEFORM("AreaDialog.cpp", AreaConfirm);
+USEFORM("NetworkConnectionStatusGUI.cpp", NetworkConnectionStatusGUI);
 //---------------------------------------------------------------------------
 static FILE* pCout = NULL;
 static void SetStdOutToNewConsole(void);
@@ -28,6 +29,8 @@ int WINAPI _tWinMain(HINSTANCE, HINSTANCE, LPTSTR, int)
 		Application->MainFormOnTaskBar = true;
 		Application->CreateForm(__classid(TForm1), &Form1);
 		Application->CreateForm(__classid(TAreaConfirm), &AreaConfirm);
+		// NetworkConnectionGUI
+		Application->CreateForm(__classid(TNetworkConnectionStatusGUI), &NetworkConnectionStatusGUI);
 		Application->Run();
 	   if (pCout)
 		{

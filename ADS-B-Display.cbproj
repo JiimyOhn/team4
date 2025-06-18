@@ -360,6 +360,12 @@
         <None Include="Map\MapSrc\VMath.h">
             <BuildOrder>29</BuildOrder>
         </None>
+        <CppCompile Include="NetworkConnectionStatusGUI.cpp">
+            <Form>NetworkConnectionStatusGUI</Form>
+            <FormType>dfm</FormType>
+            <DependentOn>NetworkConnectionStatusGUI.h</DependentOn>
+            <BuildOrder>41</BuildOrder>
+        </CppCompile>
         <CppCompile Include="ntds2d.cpp">
             <DependentOn>ntds2d.h</DependentOn>
             <BuildOrder>30</BuildOrder>
@@ -383,6 +389,7 @@
             <DependentOn>TriangulatPoly.h</DependentOn>
             <BuildOrder>32</BuildOrder>
         </CppCompile>
+        <FormResources Include="NetworkConnectionStatusGUI.dfm"/>
         <FormResources Include="DisplayGUI.dfm"/>
         <FormResources Include="AreaDialog.dfm"/>
         <BuildConfiguration Include="Base">

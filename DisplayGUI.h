@@ -26,6 +26,8 @@
 #include "cspin.h"
 #include <vector>
 #include "ntds2d.h"
+#include <NetworkConnectionStatusGUI.h>
+#include <mutex>
 
 typedef float T_GL_Color[4];
 
@@ -224,7 +226,8 @@ __published:	// IDE-managed Components
 	void __fastcall LoadARTCCBoundaries1Click(TObject *Sender);
 
 private:	// User declarations
-
+	std::mutex cancel_connection_mutex;
+	bool connected;
 
 public:		// User declarations
 	__fastcall TForm1(TComponent* Owner);

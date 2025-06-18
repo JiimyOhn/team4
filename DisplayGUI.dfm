@@ -2,7 +2,7 @@ object Form1: TForm1
   Left = 0
   Top = 0
   Caption = 'ADS-B Viewer'
-  ClientHeight = 603
+  ClientHeight = 681
   ClientWidth = 1228
   Color = clBtnFace
   Constraints.MinHeight = 740
@@ -46,14 +46,14 @@ object Form1: TForm1
     Left = 978
     Top = 0
     Width = 250
-    Height = 603
+    Height = 681
     Align = alRight
     Color = clWindow
     Constraints.MaxWidth = 250
     TabOrder = 0
     object Panel1: TPanel
       Left = 1
-      Top = 455
+      Top = 533
       Width = 248
       Height = 147
       Align = alBottom
@@ -793,7 +793,7 @@ object Form1: TForm1
     Left = 0
     Top = 0
     Width = 978
-    Height = 603
+    Height = 681
     Cursor = crCross
     Align = alClient
     TabOrder = 1

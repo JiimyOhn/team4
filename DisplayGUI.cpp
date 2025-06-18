@@ -9,6 +9,7 @@
 #include <stdlib.h>
 #include <filesystem>
 #include <fileapi.h>
+#include <thread>
 
 
 #pragma hdrstop
@@ -1190,32 +1191,92 @@ void __fastcall TTCPClientRawHandleThread::HandleInput(void)
 //---------------------------------------------------------------------------
 void __fastcall TForm1::RawConnectButtonClick(TObject *Sender)
 {
- IdTCPClientRaw->Host=RawIpAddress->Text;
- IdTCPClientRaw->Port=30002;
+	NetworkConnectionStatusGUI->CancelRequested = false;
+	{
+		std::lock_guard<std::mutex> lock(cancel_connection_mutex);
+		connected = true;
+	}
+	IdTCPClientRaw->Host = RawIpAddress->Text;
+	IdTCPClientRaw->Port = 30002;
 
- if ((RawConnectButton->Caption=="Raw Connect") && (Sender!=NULL))
- {
-  try
-   {
-   IdTCPClientRaw->Connect();
-   TCPClientRawHandleThread = new TTCPClientRawHandleThread(true);
-   TCPClientRawHandleThread->UseFileInsteadOfNetwork=false;
-   TCPClientRawHandleThread->FreeOnTerminate=TRUE;
-   TCPClientRawHandleThread->Resume();
-   }
-   catch (const EIdException& e)
-   {
-    ShowMessage("Error while connecting: "+e.Message);
-   }
- }
- else
-  {
-	TCPClientRawHandleThread->Terminate();
-	IdTCPClientRaw->Disconnect();
-	IdTCPClientRaw->IOHandler->InputBuffer->Clear();
-	RawConnectButton->Caption="Raw Connect";
-	RawPlaybackButton->Enabled=true;
-  }
+	// 별도 스레드에서 Cancel 버튼 감시
+	NetworkConnectionStatusGUI->ShowProgress("Connecting to RAW ADS-B server...");
+	std::thread cancelThread([&]() {
+		if (NetworkConnectionStatusGUI) {
+			while (!NetworkConnectionStatusGUI->CancelRequested) {
+				Sleep(50);
+			}
+			if (NetworkConnectionStatusGUI->CancelRequested) {
+			// 메인 스레드에서 연결 중단
+				printf("cancelThread cancelRequested\n");
+				NetworkConnectionStatusGUI->ShowProgress("Cancel to disconnect RAW ADS-B server...");
+				NetworkConnectionStatusGUI->SetCancelButtonCaption("Cancel");
+				TThread::Synchronize(nullptr, [&]() {
+					std::lock_guard<std::mutex> lock(cancel_connection_mutex);
+					if (connected) {
+						if(TCPClientRawHandleThread)
+							TCPClientRawHandleThread->Terminate();
+						IdTCPClientRaw->Disconnect();
+						if(IdTCPClientRaw->IOHandler) // IOHandler가 할당된 경우에만 Clear 호출
+							IdTCPClientRaw->IOHandler->InputBuffer->Clear();
+						RawConnectButton->Caption="Raw Connect";
+						RawPlaybackButton->Enabled=true;
+					}
+				});
+				NetworkConnectionStatusGUI->HideProgress();
+			}
+		}
+	});
+	cancelThread.detach();
+
+	std::thread connectThread([&]() {
+	   if ((RawConnectButton->Caption=="Raw Connect") && (Sender!=NULL))
+	{
+		try
+		{
+			// 실제 연결 시도 전에 10% 등으로 설정 가능 (선택 사항)
+			NetworkConnectionStatusGUI->UpdateProgress(10);
+			IdTCPClientRaw->Connect(); // 이 부분은 블로킹 호출입니다.
+			{
+				std::lock_guard<std::mutex> lock(cancel_connection_mutex);
+				connected = true;
+			}
+			// 연결 성공 후 100%로 설정 가능 (선택 사항)
+			NetworkConnectionStatusGUI->UpdateProgress(100);
+			Sleep(200); // 사용자가 100%를 볼 수 있도록 잠시 대기 (UI 경험상)
+
+
+			TCPClientRawHandleThread = new TTCPClientRawHandleThread(true);
+			TCPClientRawHandleThread->UseFileInsteadOfNetwork=false;
+			TCPClientRawHandleThread->FreeOnTerminate=TRUE;
+			TCPClientRawHandleThread->Resume();
+
+		}
+		catch (const EIdException& e)
+		{
+			if (!NetworkConnectionStatusGUI->CancelRequested) {
+				NetworkConnectionStatusGUI->ShowProgress("Error while connecting. Please check the IP address or network connection!");
+				NetworkConnectionStatusGUI->SetCancelButtonCaption("OK");
+				NetworkConnectionStatusGUI->UpdateProgress(0);
+			}
+		}
+	}
+	else
+	{
+		if(TCPClientRawHandleThread) // 스레드가 생성된 경우에만 Terminate 호출
+		{
+			TCPClientRawHandleThread->Terminate();
+		}
+		IdTCPClientRaw->Disconnect();
+		if(IdTCPClientRaw->IOHandler) // IOHandler가 할당된 경우에만 Clear 호출
+		{
+			IdTCPClientRaw->IOHandler->InputBuffer->Clear();
+		}
+		RawConnectButton->Caption="Raw Connect";
+		RawPlaybackButton->Enabled=true;
+	}
+	});
+	connectThread.detach();
  }
 //---------------------------------------------------------------------------
 void __fastcall TForm1::IdTCPClientRawConnected(TObject *Sender)
