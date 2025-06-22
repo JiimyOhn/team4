@@ -3,8 +3,11 @@
 #include "TCPDataHandler.h"
 #include "TimeFunctions.h" // <<< GetCurrentTimeInMsec 사용을 위해 추가
 
+const int MAX_RETRY_ATTEMPTS = 10;
+const int INITIAL_RETRY_INTERVAL_MS = 2000;  // 2초
+const int MAX_RETRY_INTERVAL_MS = 30000;     // 30초
+
 //---------------------------------------------------------------------------
-// TWorkerThread 생성자
 __fastcall TCPDataHandler::TWorkerThread::TWorkerThread(TCPDataHandler* AHandler)
     : TThread(false), FHandler(AHandler) // 스레드를 생성-일시정지 상태(false)로 만듦
 {
@@ -14,76 +17,129 @@ __fastcall TCPDataHandler::TWorkerThread::TWorkerThread(TCPDataHandler* AHandler
 // TWorkerThread의 실제 동작 내용
 void __fastcall TCPDataHandler::TWorkerThread::Execute()
 {
-    // 이 메소드 안에서는 Terminated 속성에 직접 접근 가능
-    String data;
-    bool firstPlaybackLine = true;
-    __int64 lastTime = 0;
+    if (FHandler->FDataSourceType == TDataSourceType::Network)
+	{
+		int retryCount = 0;
+		int retryInterval = INITIAL_RETRY_INTERVAL_MS;
 
-    try
-    {
-        if (FHandler->FDataSourceType == TDataSourceType::Network)
-        {
-            FHandler->FClient = new TIdTCPClient(FHandler->FOwner);
-            FHandler->FClient->Host = FHandler->FHost;
-            FHandler->FClient->Port = FHandler->FPort;
-            FHandler->FClient->Connect();
-            FHandler->FClient->Socket->Binding->SetKeepAliveValues(true, 60 * 1000, 15 * 1000);
-            Synchronize([this](){ FHandler->SyncNotifyConnected(); });
+		while (!Terminated) // 사용자가 Disconnect()를 호출하여 Terminated가 true가 될 때까지 반복
+		{
+            if (retryCount >= MAX_RETRY_ATTEMPTS)
+			{
+				// Synchronize를 사용하여 메인 스레드에서 ShowMessage를 안전하게 호출합니다.
+				Synchronize([&](){
+					ShowMessage("Failed to connect after " + String(MAX_RETRY_ATTEMPTS) + " attempts. Please check the server and your network connection.");
+				});
+				break;
+			}
+			try
+			{
+				// 재연결 시도인 경우 (첫 시도가 아님)
+				if (retryCount > 0)
+				{
+					// UI에 "재연결 중" 상태 전송
+					Synchronize([this](){ FHandler->SyncNotifyReconnecting(); });
 
-            while (!Terminated)
-            {
-                data = FHandler->FClient->IOHandler->ReadLn();
-                Synchronize([this, data](){ FHandler->SyncNotifyData(data); });
-            }
-        }
-        else // File Playback
-        {
-            FHandler->FPlaybackStream = new TStreamReader(FHandler->FPlaybackFileName);
-            Synchronize([this](){ FHandler->SyncNotifyConnected(); });
+					// Exponential Backoff 딜레이
+					TThread::Sleep(retryInterval);
+					retryInterval *= 2;
+					if (retryInterval > MAX_RETRY_INTERVAL_MS) {
+						retryInterval = MAX_RETRY_INTERVAL_MS;
+					}
+				}
 
-            while (!Terminated && !FHandler->FPlaybackStream->EndOfStream)
-            {
-                String timeStr = FHandler->FPlaybackStream->ReadLine();
-                if (FHandler->FPlaybackStream->EndOfStream) break;
-                AnsiString msgStr = FHandler->FPlaybackStream->ReadLine();
+				// 연결 시도
+				FHandler->FClient->Host = FHandler->FHost;
+				FHandler->FClient->Port = FHandler->FPort;
+				FHandler->FClient->Connect(); // 여기서 실패하면 catch 블록으로 이동
+				FHandler->FClient->Socket->Binding->SetKeepAliveValues(true, 60000, 15000);
 
-                __int64 currentTime = StrToInt64(timeStr);
-                if (firstPlaybackLine)
-                {
-                    firstPlaybackLine = false;
-                    lastTime = currentTime;
-                }
+				// 연결 성공 시, 재시도 횟수 초기화 ---
+				// 재연결에 성공했거나, 첫 연결에 성공했을 때 UI에 알리고 상태를 초기화합니다.
+				Synchronize([this](){ FHandler->SyncNotifyConnected(); });
+				retryCount = 0;
+				retryInterval = INITIAL_RETRY_INTERVAL_MS;
 
-                __int64 sleepTime = currentTime - lastTime;
-                if (sleepTime > 0 && sleepTime < 10000) // 비정상적인 sleep 방지
-                {
-                    TThread::Sleep(sleepTime);
-                }
-                lastTime = currentTime;
+				// 데이터 수신 루프
+				while (!Terminated && FHandler->FClient->Connected())
+				{
+					String data = FHandler->FClient->IOHandler->ReadLn();
+					if (!Terminated) {
+						Synchronize([this, data](){ FHandler->SyncNotifyData(data); });
+					}
+				}
+			}
+			catch (const Exception& e)
+			{
+				// 연결이 끊기면 예외가 발생합니다.
+				if (Terminated) {
+					break; // 사용자가 취소한 것이므로 즉시 루프 종료
+				}
+				// 그 외 네트워크 오류의 경우, 재시도 횟수를 증가시키고 루프를 계속합니다.
+				retryCount++;
+                std::cout << "Connection attempt failed (Retry #" << retryCount << "): " << e.Message.c_str() << std::endl;
+                if (FHandler->FClient->Connected()) {
+					FHandler->FClient->Disconnect();
+				}
+				continue;
+			}
+		}
+	}
+	else // File Playback 로직
+	{
+        try
+		{
+			// 파일이 없거나 접근 불가 시 여기서 예외 발생 가능
+			FHandler->FPlaybackStream = new TStreamReader(FHandler->FPlaybackFileName);
+			Synchronize([this](){ FHandler->SyncNotifyConnected(); });
 
-                Synchronize([this, msgStr](){ FHandler->SyncNotifyData(msgStr); });
-            }
-        }
-    }
-    catch (const Exception& e)
-    {
-        ShowMessage("Error while connecting: "+e.Message);
-    }
+			bool firstPlaybackLine = true;
+			__int64 lastTime = 0;
 
-    // 스레드 종료 처리
-    if (FHandler->FClient)
-    {
-        FHandler->FClient->Disconnect();
-        delete FHandler->FClient;
-        FHandler->FClient = NULL;
-    }
-    if (FHandler->FPlaybackStream)
-    {
-        delete FHandler->FPlaybackStream;
-        FHandler->FPlaybackStream = NULL;
-    }
-    FHandler->FIsActive = false;
-    Synchronize([this](){ FHandler->SyncNotifyDisconnected("Normal termination"); });
+			while (!Terminated && !FHandler->FPlaybackStream->EndOfStream)
+			{
+				String timeStr = FHandler->FPlaybackStream->ReadLine();
+				if (FHandler->FPlaybackStream->EndOfStream) break;
+				AnsiString msgStr = FHandler->FPlaybackStream->ReadLine();
+
+				// 파일 포맷이 잘못된 경우 여기서 예외 발생 가능
+				__int64 currentTime = StrToInt64(timeStr);
+
+				if (firstPlaybackLine)
+				{
+					firstPlaybackLine = false;
+					lastTime = currentTime;
+				}
+
+				__int64 sleepTime = currentTime - lastTime;
+				if (sleepTime > 0 && sleepTime < 10000)
+				{
+					TThread::Sleep(sleepTime);
+				}
+				lastTime = currentTime;
+
+				if (!Terminated) {
+					Synchronize([this, msgStr](){ FHandler->SyncNotifyData(msgStr); });
+				}
+			}
+		}
+		catch (const Exception& e)
+		{
+			// 파일 관련 예외가 발생했을 때 처리하는 부분
+			Synchronize([&](){
+				// 메인 스레드에서 안전하게 에러 메시지 표시
+				ShowMessage("Error during file playback: " + e.Message);
+			});
+		}
+	}
+
+    if (FHandler->FClient && FHandler->FClient->Connected()) {
+		FHandler->FClient->Disconnect();
+	}
+	if (FHandler->FPlaybackStream) {
+		delete FHandler->FPlaybackStream;
+		FHandler->FPlaybackStream = NULL;
+	}
 }
 
 //---------------------------------------------------------------------------
@@ -93,12 +149,16 @@ __fastcall TCPDataHandler::TCPDataHandler(TComponent* AOwner)
     : TObject(), FOwner(AOwner), FClient(NULL), FWorkerThread(NULL),
       FPlaybackStream(NULL), FRecordStream(NULL), FIsActive(false)
 {
+    FClient = new TIdTCPClient(nullptr);
 }
 //---------------------------------------------------------------------------
 __fastcall TCPDataHandler::~TCPDataHandler()
 {
-    Disconnect();
-    StopRecording();
+    if (FWorkerThread) {
+		FWorkerThread->Terminate();
+	}
+	delete FClient;
+	StopRecording();
 }
 //---------------------------------------------------------------------------
 void TCPDataHandler::Connect(const String& host, int port)
@@ -109,10 +169,10 @@ void TCPDataHandler::Connect(const String& host, int port)
     FDataSourceType = TDataSourceType::Network;
     FIsActive = true;
 
-    // new TThread(false) -> new TWorkerThread(this) 로 변경
     FWorkerThread = new TWorkerThread(this);
-    FWorkerThread->FreeOnTerminate=true;
-	FWorkerThread->Resume(); // Resume() 대신 Start()가 표준
+    FWorkerThread->FreeOnTerminate = true;
+    FWorkerThread->OnTerminate = ThreadTerminated;
+	FWorkerThread->Resume();
 }
 //---------------------------------------------------------------------------
 void TCPDataHandler::StartPlayback(const String& fileName)
@@ -122,16 +182,31 @@ void TCPDataHandler::StartPlayback(const String& fileName)
     FDataSourceType = TDataSourceType::File;
     FIsActive = true;
 
-    // new TThread(false) -> new TWorkerThread(this) 로 변경
     FWorkerThread = new TWorkerThread(this);
-    FWorkerThread->FreeOnTerminate=true;
+    FWorkerThread->FreeOnTerminate = true;
+    FWorkerThread->OnTerminate = ThreadTerminated;
     FWorkerThread->Resume();
 }
 //---------------------------------------------------------------------------
 void TCPDataHandler::Disconnect()
 {
-    if (!FIsActive || !FWorkerThread) return;
-    FWorkerThread->Terminate();
+	if (FWorkerThread)
+	{
+		FWorkerThread->Terminate();
+	}
+}
+//---------------------------------------------------------------------------
+void __fastcall TCPDataHandler::ThreadTerminated(TObject* Sender)
+{
+	FWorkerThread = NULL;
+
+	if (FIsActive)
+	{
+		FIsActive = false;
+		if (OnDisconnected) {
+			OnDisconnected("Connection lost or terminated.");
+		}
+	}
 }
 //---------------------------------------------------------------------------
 void TCPDataHandler::StartRecording(const String& fileName)
@@ -174,16 +249,12 @@ void __fastcall TCPDataHandler::SyncNotifyData(AnsiString data)
 //---------------------------------------------------------------------------
 void __fastcall TCPDataHandler::SyncNotifyConnected()
 {
-    if (OnConnected)
-    {
-        OnConnected();
-    }
+    FIsActive = true;
+	if (OnConnected) OnConnected();
 }
 //---------------------------------------------------------------------------
-void __fastcall TCPDataHandler::SyncNotifyDisconnected(String reason)
+void __fastcall TCPDataHandler::SyncNotifyReconnecting()
 {
-    if (OnDisconnected)
-    {
-        OnDisconnected(reason);
-    }
+    if (OnReconnecting) OnReconnecting();
 }
+//---------------------------------------------------------------------------

@@ -232,12 +232,14 @@ __fastcall TForm1::TForm1(TComponent* Owner)
 	FRawDataHandler->OnDataReceived = [this](const AnsiString& data){ this->HandleRawData(data); };
 	FRawDataHandler->OnConnected = [this](){ this->HandleRawConnected(); };
 	FRawDataHandler->OnDisconnected = [this](const String& reason){ this->HandleRawDisconnected(reason); };
+	FRawDataHandler->OnReconnecting = [this](){ this->HandleRawReconnecting(); };
 
 	// SBS 데이터 핸들러 생성 및 콜백 연결
 	FSBSDataHandler = new TCPDataHandler(this);
 	FSBSDataHandler->OnDataReceived = [this](const AnsiString& data){ this->HandleSBSData(data); };
 	FSBSDataHandler->OnConnected = [this](){ this->HandleSBSConnected(); };
 	FSBSDataHandler->OnDisconnected = [this](const String& reason){ this->HandleSBSDisconnected(reason); };
+	FSBSDataHandler->OnReconnecting = [this](){ this->HandleSBSReconnecting(); };
 
   FAircraftModel = new AircraftDataModel();
 }
@@ -1126,6 +1128,13 @@ void __fastcall TForm1::HandleRawDisconnected(const String& reason)
     RawConnectButton->Enabled = true;
 }
 //---------------------------------------------------------------------------
+void __fastcall TForm1::HandleRawReconnecting()
+{
+    // UI를 "재연결 중" 상태로 업데이트
+    RawConnectButton->Caption = "Reconnecting... (Cancel)";
+    RawPlaybackButton->Enabled = false;
+}
+//---------------------------------------------------------------------------
 void __fastcall TForm1::RawConnectButtonClick(TObject *Sender)
 {
 	if (!FRawDataHandler->IsActive())
@@ -1221,6 +1230,13 @@ void __fastcall TForm1::HandleSBSDisconnected(const String& reason)
         SBSPlaybackButton->Caption = "SBS Playback";
         SBSConnectButton->Enabled = true;
     }
+}
+//---------------------------------------------------------------------------
+void __fastcall TForm1::HandleSBSReconnecting()
+{
+	// UI를 "재연결 중" 상태로 업데이트
+	SBSConnectButton->Caption = "Reconnecting... (Cancel)";
+	SBSPlaybackButton->Enabled = false;
 }
 //---------------------------------------------------------------------------
 void __fastcall TForm1::SBSRecordButtonClick(TObject *Sender)

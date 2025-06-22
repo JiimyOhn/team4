@@ -192,10 +192,12 @@ private:	// User declarations
     void __fastcall HandleRawData(const AnsiString& data);
     void __fastcall HandleRawConnected();
     void __fastcall HandleRawDisconnected(const String& reason);
+	void __fastcall HandleRawReconnecting();
 
     void __fastcall HandleSBSData(const AnsiString& data);
     void __fastcall HandleSBSConnected();
     void __fastcall HandleSBSDisconnected(const String& reason);
+	void __fastcall HandleSBSReconnecting();
 
 
 public:		// User declarations

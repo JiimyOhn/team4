@@ -45,7 +45,8 @@ private:
     // 동기화 메소드 (변경 없음)
     void __fastcall SyncNotifyData(AnsiString data);
     void __fastcall SyncNotifyConnected();
-    void __fastcall SyncNotifyDisconnected(String reason);
+    void __fastcall SyncNotifyReconnecting();
+    void __fastcall ThreadTerminated(TObject* Sender);
 
 public:
     __fastcall TCPDataHandler(TComponent* AOwner);
@@ -54,10 +55,12 @@ public:
     typedef std::function<void(const String& data)> TDataCallback;
     typedef std::function<void()> TNotifyEventCallback;
     typedef std::function<void(const String& reason)> TDisconnectedCallback;
+    typedef std::function<void()> TReconnectingCallback;
 
     TDataCallback OnDataReceived;
     TNotifyEventCallback OnConnected;
     TDisconnectedCallback OnDisconnected;
+    TReconnectingCallback OnReconnecting;
 
     void Connect(const String& host, int port);
     void StartPlayback(const String& fileName);
