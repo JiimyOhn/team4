@@ -51,6 +51,7 @@ void __fastcall TCPDataHandler::TWorkerThread::Execute()
 				// 연결 시도
 				FHandler->FClient->Host = FHandler->FHost;
 				FHandler->FClient->Port = FHandler->FPort;
+                FHandler->FClient->ConnectTimeout = 5000; // 5초 타임아웃 설정
 				FHandler->FClient->Connect(); // 여기서 실패하면 catch 블록으로 이동
 				FHandler->FClient->Socket->Binding->SetKeepAliveValues(true, 60000, 15000);
 
@@ -193,6 +194,28 @@ void TCPDataHandler::Disconnect()
 	if (FWorkerThread)
 	{
 		FWorkerThread->Terminate();
+	}
+
+    if (FClient)
+	{
+		try
+		{
+			// 이 호출은 다른 스레드에서 실행 중인 Connect()를 즉시 중단시키고, 예외를 발생시킵니다.
+			FClient->Disconnect();
+		}
+		catch(...)
+		{
+			// 예외는 무시합니다. 목적은 다른 스레드를 깨우는 것이기 때문입니다.
+		}
+	}
+
+    // 3. UI의 즉각적인 반응을 위한 추가 처리
+    if (FIsActive)
+	{
+		FIsActive = false;
+		if (OnDisconnected) {
+			OnDisconnected("User disconnected");
+		}
 	}
 }
 //---------------------------------------------------------------------------
