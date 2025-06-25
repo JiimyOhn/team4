@@ -3,7 +3,7 @@
 #include "TCPDataHandler.h"
 #include "TimeFunctions.h" // <<< GetCurrentTimeInMsec 사용을 위해 추가
 
-const int MAX_RETRY_ATTEMPTS = 2;
+const int MAX_RETRY_ATTEMPTS = 10;
 const int INITIAL_RETRY_INTERVAL_MS = 2000;  // 2초
 const int MAX_RETRY_INTERVAL_MS = 30000;     // 30초
 
