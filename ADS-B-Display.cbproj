@@ -198,13 +198,12 @@
             <BuildOrder>1</BuildOrder>
             <PCH>true</PCH>
         </PCHCompile>
-        <CppCompile Include="Aircraft.cpp">
-            <DependentOn>Aircraft.h</DependentOn>
-            <BuildOrder>39</BuildOrder>
-        </CppCompile>
+        <None Include="Aircraft.h">
+            <BuildOrder>55</BuildOrder>
+        </None>
         <CppCompile Include="AircraftDB.cpp">
             <DependentOn>AircraftDB.h</DependentOn>
-            <BuildOrder>38</BuildOrder>
+            <BuildOrder>56</BuildOrder>
         </CppCompile>
         <CppCompile Include="AreaDialog.cpp">
             <Form>AreaConfirm</Form>
@@ -227,10 +226,6 @@
         <CppCompile Include="csv.cpp">
             <DependentOn>csv.h</DependentOn>
             <BuildOrder>39</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="DecodeRawADS_B.cpp">
-            <DependentOn>DecodeRawADS_B.h</DependentOn>
-            <BuildOrder>35</BuildOrder>
         </CppCompile>
         <CppCompile Include="DisplayGUI.cpp">
             <Form>Form1</Form>
@@ -385,9 +380,13 @@
             <DependentOn>PointInPolygon.h</DependentOn>
             <BuildOrder>32</BuildOrder>
         </CppCompile>
-        <CppCompile Include="SBS_Message.cpp">
-            <DependentOn>SBS_Message.h</DependentOn>
-            <BuildOrder>40</BuildOrder>
+        <CppCompile Include="RawDecoder.cpp">
+            <DependentOn>RawDecoder.h</DependentOn>
+            <BuildOrder>54</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="SbsDecoder.cpp">
+            <DependentOn>SbsDecoder.h</DependentOn>
+            <BuildOrder>53</BuildOrder>
         </CppCompile>
         <None Include="stb_image.h">
             <BuildOrder>37</BuildOrder>

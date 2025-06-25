@@ -17,12 +17,10 @@
 #include "AreaDialog.h"
 #include "LatLonConv.h"
 #include "PointInPolygon.h"
-#include "DecodeRawADS_B.h"
 #include "ght_hash_table.h"
 #include "dms.h"
 #include "Aircraft.h"
 #include "TimeFunctions.h"
-#include "SBS_Message.h"
 #include "CPA.h"
 #include "AircraftDB.h"
 #include "csv.h"
@@ -192,7 +190,6 @@ __fastcall TForm1::TForm1(TComponent* Owner)
   BigQueryLogFileName=BigQueryPath+"BigQuery.log";
   DeleteFileA(BigQueryLogFileName.c_str());
   CurrentSpriteImage=0;
-  InitDecodeRawADS_B();
   RecordRawStream=NULL;
   PlayBackRawStream=NULL;
   TrackHook.Valid_CC=false;

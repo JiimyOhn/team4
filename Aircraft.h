@@ -2,7 +2,6 @@
 
 #ifndef AircraftH
 #define AircraftH
-#include "DecodeRawADS_B.h"
 
 #define MODES_NON_ICAO_ADDRESS       (1<<24) // Set on addresses to indicate they are not ICAO addresses
 
@@ -33,7 +32,5 @@ typedef struct
  int                 SpriteImage;
 } TADS_B_Aircraft;
 
-
-void RawToAircraft(modeS_message *mm,TADS_B_Aircraft *ADS_B_Aircraft);
 //---------------------------------------------------------------------------
 #endif
