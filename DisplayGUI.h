@@ -29,6 +29,7 @@
 #include "TCPDataHandler.h"
 #include "AircraftDataModel.h"
 #include "IMAPProvider.h"
+#include "ButtonScroller.h"
 typedef float T_GL_Color[4];
 
 
@@ -187,6 +188,8 @@ private:	// User declarations
 	TCPDataHandler *FRawDataHandler;
     TCPDataHandler *FSBSDataHandler;
 	AircraftDataModel *FAircraftModel;
+	TButtonScroller *FRawButtonScroller;
+    TButtonScroller *FSBSButtonScroller;
 
     // 콜백에 의해 호출될 함수들
     void __fastcall HandleRawData(const AnsiString& data);

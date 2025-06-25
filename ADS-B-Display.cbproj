@@ -212,6 +212,10 @@
             <DependentOn>AreaDialog.h</DependentOn>
             <BuildOrder>34</BuildOrder>
         </CppCompile>
+        <CppCompile Include="ButtonScroller.cpp">
+            <DependentOn>ButtonScroller.h</DependentOn>
+            <BuildOrder>56</BuildOrder>
+        </CppCompile>
         <CppCompile Include="Controller\TCPDataHandler.cpp">
             <DependentOn>Controller\TCPDataHandler.h</DependentOn>
             <BuildOrder>52</BuildOrder>
