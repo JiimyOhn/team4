@@ -55,12 +55,6 @@ void __fastcall TCPDataHandler::TWorkerThread::Execute()
 				FHandler->FClient->Connect(); // 여기서 실패하면 catch 블록으로 이동
 				FHandler->FClient->Socket->Binding->SetKeepAliveValues(true, 60000, 15000);
 
-				// 연결 성공 시, 재시도 횟수 초기화 ---
-				// 재연결에 성공했거나, 첫 연결에 성공했을 때 UI에 알리고 상태를 초기화합니다.
-				Synchronize([this](){ FHandler->SyncNotifyConnected(); });
-				retryCount = 0;
-				retryInterval = INITIAL_RETRY_INTERVAL_MS;
-
 				// 데이터 수신 루프
 				while (!Terminated && FHandler->FClient->Connected())
 				{
@@ -69,6 +63,10 @@ void __fastcall TCPDataHandler::TWorkerThread::Execute()
 						Synchronize([this, data](){ FHandler->SyncNotifyData(data); });
 					}
 				}
+
+				Synchronize([this](){ FHandler->SyncNotifyConnected(); });
+				retryCount = 0;
+				retryInterval = INITIAL_RETRY_INTERVAL_MS;
 			}
 			catch (const Exception& e)
 			{
