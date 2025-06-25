@@ -3,7 +3,7 @@
 #include "TCPDataHandler.h"
 #include "TimeFunctions.h" // <<< GetCurrentTimeInMsec 사용을 위해 추가
 
-const int MAX_RETRY_ATTEMPTS = 10;
+const int MAX_RETRY_ATTEMPTS = 2;
 const int INITIAL_RETRY_INTERVAL_MS = 2000;  // 2초
 const int MAX_RETRY_INTERVAL_MS = 30000;     // 30초
 
@@ -21,6 +21,7 @@ void __fastcall TCPDataHandler::TWorkerThread::Execute()
 	{
 		int retryCount = 0;
 		int retryInterval = INITIAL_RETRY_INTERVAL_MS;
+		bool connectionWasSuccessful = false;
 
 		while (!Terminated) // 사용자가 Disconnect()를 호출하여 Terminated가 true가 될 때까지 반복
 		{
@@ -55,6 +56,9 @@ void __fastcall TCPDataHandler::TWorkerThread::Execute()
 				FHandler->FClient->Connect(); // 여기서 실패하면 catch 블록으로 이동
 				FHandler->FClient->Socket->Binding->SetKeepAliveValues(true, 60000, 15000);
 
+				connectionWasSuccessful = true;
+                Synchronize([this](){ FHandler->SyncNotifyConnected(); });				
+
 				// 데이터 수신 루프
 				while (!Terminated && FHandler->FClient->Connected())
 				{
@@ -63,8 +67,6 @@ void __fastcall TCPDataHandler::TWorkerThread::Execute()
 						Synchronize([this, data](){ FHandler->SyncNotifyData(data); });
 					}
 				}
-
-				Synchronize([this](){ FHandler->SyncNotifyConnected(); });
 				retryCount = 0;
 				retryInterval = INITIAL_RETRY_INTERVAL_MS;
 			}
@@ -74,6 +76,10 @@ void __fastcall TCPDataHandler::TWorkerThread::Execute()
 				if (Terminated) {
 					break; // 사용자가 취소한 것이므로 즉시 루프 종료
 				}
+				if (connectionWasSuccessful) {
+					ShowMessage("Connection lost: " + e.Message);
+                    break;
+                }
 				// 그 외 네트워크 오류의 경우, 재시도 횟수를 증가시키고 루프를 계속합니다.
 				retryCount++;
                 std::cout << "Connection attempt failed (Retry #" << retryCount << "): " << e.Message.c_str() << std::endl;
