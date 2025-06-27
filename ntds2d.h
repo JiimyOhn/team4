@@ -5,7 +5,9 @@
 #include <vector>
 #include <windows.h>
 #include "Aircraft.h"
+#include "AircraftInfo.h"
 int MakeAirplaneImages(void);
+int MakeAirportImages(void);
 void MakeAirTrackFriend(void);
 void MakeAirTrackHostile(void);
 void MakeAirTrackUnknown(void);
@@ -63,8 +65,33 @@ void SetHexTextScale(float scale);
 void SetHexTextBold(bool bold);
 float GetHexTextScale();
 
+// 공항 마커 인스턴싱용 구조체
+struct AirportInstance {
+    float x;
+    float y;
+    int   type;
+};
+
+void InitAirportInstancing();
+
 // 항공기 타입별 아이콘 선택 함수
 int SelectAircraftIcon(const TADS_B_Aircraft* aircraft);
+
+// --- Airport marker atlas ---
+enum AirportType { Civil = 0, Military = 1, Helipad = 2 };
+
+// 공항 타입 판별
+AirportType GetAirportType(const AirportInfo& airport);
+
+struct AtlasRect { int x, y, w, h; };
+
+extern const int iconW, iconH, atlasW, atlasH;
+extern AtlasRect airportAtlasRects[3];
+extern GLuint atlasTexId;
+
+void DrawAtlasIcon(double x, double y, const AtlasRect& rect, GLuint texId,
+                   int iconDrawSize = 32);
+void DrawAirportMarkers();
 
 //---------------------------------------------------------------------------
 #endif

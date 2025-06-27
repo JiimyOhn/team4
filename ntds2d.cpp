@@ -10,12 +10,15 @@
 #include "stb_image.h"
 #include "AircraftDB.h"
 #include <stdio.h>
+#include <png.h>
 
 #pragma hdrstop
 
 #include "ntds2d.h"
 #include "hex_font.h"
 #include "Aircraft.h"
+#include "AircraftApi.h"
+#include "DisplayGUI.h"
 #define RADPERDEG (asin(1.0f)/90.0f)
 #ifndef GL_CLAMP_TO_EDGE
 #define GL_CLAMP_TO_EDGE 0x812F
@@ -40,6 +43,36 @@ static GLuint TRACKHOOK;
 static GLuint TextureSpites[NUM_SPRITES];
 static GLuint TextureSpriteArray = 0;
 static int NumSprites=0;
+
+// Airport marker atlas data
+const int iconW = 48, iconH = 48;
+const int atlasW = 144, atlasH = 48;
+AtlasRect airportAtlasRects[3] = {
+    {0,   0, iconW, iconH},
+    {48,  0, iconW, iconH},
+    {96,  0, iconW, iconH}
+};
+GLuint atlasTexId = 0;
+
+static const size_t MAX_AIRPORT_INSTANCES = 40000;
+
+//-----------------------------------------------------------------------------
+AirportType GetAirportType(const AirportInfo& airport)
+{
+    return Civil;
+}
+//-----------------------------------------------------------------------------
+
+struct AirportInstancingResources {
+    bool initialized;
+    GLuint vao;
+    GLuint quadVBO;
+    GLuint instanceVBO;
+    GLuint program;
+    std::vector<AirportInstance> instances;
+};
+
+static AirportInstancingResources gAirportInst = {false,0,0,0,0};
 
 struct AirPlaneInstancingResources {
     bool initialized;
@@ -240,6 +273,91 @@ int MakeAirplaneImages(void)
   glEnable(GL_TEXTURE_2D);
   glShadeModel(GL_FLAT);
   return(NumSprites);
+}
+
+//---------------------------------------------------------------------------
+int MakeAirportImages(void)
+{
+    LoadGLExtensions();
+    if(atlasTexId != 0) return 1;
+
+    const char* filename = "../../Symbols/airport_atlas.png";
+    FILE* fp = fopen(filename, "rb");
+    if(!fp){
+        printf("[ERROR] failed to open airport atlas: %s\n", filename);
+        return 0;
+    }
+
+    png_structp png = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+    png_infop info = png_create_info_struct(png);
+    if(setjmp(png_jmpbuf(png))){
+        printf("[ERROR] png parse error\n");
+        fclose(fp);
+        return 0;
+    }
+    png_init_io(png, fp);
+    png_read_info(png, info);
+
+    int width  = png_get_image_width(png, info);
+    int height = png_get_image_height(png, info);
+    int color  = png_get_color_type(png, info);
+    int depth  = png_get_bit_depth(png, info);
+
+    if(depth == 16) png_set_strip_16(png);
+    if(color == PNG_COLOR_TYPE_PALETTE) png_set_palette_to_rgb(png);
+    if(color == PNG_COLOR_TYPE_GRAY && depth < 8) png_set_expand(png);
+    if(png_get_valid(png, info, PNG_INFO_tRNS)) png_set_tRNS_to_alpha(png);
+    if(color == PNG_COLOR_TYPE_RGB || color == PNG_COLOR_TYPE_GRAY || color == PNG_COLOR_TYPE_PALETTE)
+        png_set_filler(png, 0xFF, PNG_FILLER_AFTER);
+    if(color == PNG_COLOR_TYPE_GRAY || color == PNG_COLOR_TYPE_GRAY_ALPHA)
+        png_set_gray_to_rgb(png);
+
+    png_read_update_info(png, info);
+
+    int rowbytes = png_get_rowbytes(png, info);
+    std::vector<png_byte> img(rowbytes * height);
+    std::vector<png_bytep> rows(height);
+    for(int y=0;y<height;y++)
+        rows[y] = img.data() + y*rowbytes;
+    png_read_image(png, rows.data());
+    fclose(fp);
+
+    for(int y=0;y<height;++y){
+        for(int x=0;x<width;++x){
+            png_bytep p = &img[y*rowbytes + x*4];
+            if(p[0]>240 && p[1]>240 && p[2]>240)
+                p[3] = 0;
+        }
+    }
+
+    glGenTextures(1, &atlasTexId);
+    glBindTexture(GL_TEXTURE_2D_ARRAY, atlasTexId);
+    pglTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_RGBA,
+                  iconW, iconH, 3, 0,
+                  GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+    std::vector<unsigned char> layer(iconW * iconH * 4);
+    for(int i=0;i<3;i++){
+        for(int y=0;y<iconH;y++){
+            memcpy(layer.data()+y*iconW*4,
+                   &img[y*rowbytes + i*iconW*4],
+                   iconW*4);
+        }
+        pglTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0,
+                        0,0,i,
+                        iconW, iconH, 1,
+                        GL_RGBA, GL_UNSIGNED_BYTE,
+                        layer.data());
+    }
+    glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
+
+    png_destroy_read_struct(&png, &info, NULL);
+    gAirportInst.instances.reserve(MAX_AIRPORT_INSTANCES);
+    return 1;
 }
 //---------------------------------------------------------------------------
 void MakeAirTrackFriend(void)
@@ -871,7 +989,7 @@ float GetHexTextScale()
 }
 
 // 항공기 타입별 아이콘 선택 함수 추가
-int SelectAircraftIcon(const TADS_B_Aircraft* aircraft) 
+int SelectAircraftIcon(const TADS_B_Aircraft* aircraft)
 {
     if (!aircraft) return 0;
     
@@ -946,6 +1064,154 @@ int SelectAircraftIcon(const TADS_B_Aircraft* aircraft)
         else if (aircraft->Speed < 100) return 6;
     }
     return 0;
+}
+
+//---------------------------------------------------------------------------
+void InitAirportInstancing()
+{
+    LoadGLExtensions();
+    if(gAirportInst.initialized) return;
+
+    const char* vsSrc =
+        "#version 330 core\n"
+        "layout(location=0) in vec2 vert;\n"
+        "layout(location=1) in vec2 uv;\n"
+        "layout(location=2) in vec2 pos;\n"
+        "layout(location=3) in int  type;\n"
+        "uniform vec2 Viewport;\n"
+        "uniform float Size;\n"
+        "out vec2 Tex;\n"
+        "flat out int Icon;\n"
+        "void main(){\n"
+        "  vec2 p = pos + vert * Size * 0.5;\n"
+        "  vec2 ndc = vec2((p.x/Viewport.x)*2.0 - 1.0, (p.y/Viewport.y)*2.0 - 1.0);\n"
+        "  gl_Position = vec4(ndc,0.0,1.0);\n"
+        "  Tex = uv;\n"
+        "  Icon = type;\n"
+        "}\n";
+
+    const char* fsSrc =
+        "#version 330 core\n"
+        "in vec2 Tex;\n"
+        "flat in int Icon;\n"
+        "out vec4 Frag;\n"
+        "uniform sampler2DArray atlasTex;\n"
+        "void main(){\n"
+        "  Frag = texture(atlasTex, vec3(Tex, Icon));\n"
+        "}\n";
+
+    gAirportInst.program = CreateProgram(vsSrc, fsSrc);
+
+    float quad[] = {
+        -1.0f,-1.0f, 0.0f,0.0f,
+         1.0f,-1.0f, 1.0f,0.0f,
+         1.0f, 1.0f, 1.0f,1.0f,
+        -1.0f, 1.0f, 0.0f,1.0f
+    };
+
+    pglGenVertexArrays(1, &gAirportInst.vao);
+    pglBindVertexArray(gAirportInst.vao);
+
+    pglGenBuffers(1, &gAirportInst.quadVBO);
+    pglBindBuffer(GL_ARRAY_BUFFER, gAirportInst.quadVBO);
+    pglBufferData(GL_ARRAY_BUFFER, sizeof(quad), quad, GL_STATIC_DRAW);
+    pglEnableVertexAttribArray(0);
+    pglVertexAttribPointer(0,2,GL_FLOAT,GL_FALSE,4*sizeof(float),(void*)0);
+    pglEnableVertexAttribArray(1);
+    pglVertexAttribPointer(1,2,GL_FLOAT,GL_FALSE,4*sizeof(float),(void*)(2*sizeof(float)));
+
+    pglGenBuffers(1, &gAirportInst.instanceVBO);
+    pglBindBuffer(GL_ARRAY_BUFFER, gAirportInst.instanceVBO);
+    pglBufferData(GL_ARRAY_BUFFER, 0, NULL, GL_STREAM_DRAW);
+
+    size_t stride = sizeof(AirportInstance);
+    pglEnableVertexAttribArray(2);
+    pglVertexAttribPointer(2,2,GL_FLOAT,GL_FALSE,stride,(void*)offsetof(AirportInstance,x));
+    pglVertexAttribDivisor(2,1);
+    pglEnableVertexAttribArray(3);
+    pglVertexAttribIPointer(3,1,GL_INT,stride,(void*)offsetof(AirportInstance,type));
+    pglVertexAttribDivisor(3,1);
+
+    pglBindBuffer(GL_ARRAY_BUFFER,0);
+    pglBindVertexArray(0);
+
+    gAirportInst.initialized = true;
+}
+
+//---------------------------------------------------------------------------
+void DrawAtlasIcon(double x, double y, const AtlasRect& rect, GLuint texId,
+                   int iconDrawSize)
+{
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, texId);
+
+    float u0 = rect.x / (float)atlasW;
+    float v0 = rect.y / (float)atlasH;
+    float u1 = (rect.x + rect.w) / (float)atlasW;
+    float v1 = (rect.y + rect.h) / (float)atlasH;
+    float sz = (float)iconDrawSize;
+
+    glColor4f(1,1,1,1);
+    glBegin(GL_QUADS);
+    glTexCoord2f(u0, v0); glVertex2f(x - sz/2, y - sz/2);
+    glTexCoord2f(u1, v0); glVertex2f(x + sz/2, y - sz/2);
+    glTexCoord2f(u1, v1); glVertex2f(x + sz/2, y + sz/2);
+    glTexCoord2f(u0, v1); glVertex2f(x - sz/2, y + sz/2);
+    glEnd();
+
+    glBindTexture(GL_TEXTURE_2D, 0);
+    glDisable(GL_TEXTURE_2D);
+}
+
+//---------------------------------------------------------------------------
+void DrawAirportMarkers()
+{
+    if(apiAirportList.empty()) return;
+    if(!gAirportInst.initialized)
+        InitAirportInstancing();
+
+    auto& instances = gAirportInst.instances;
+    instances.clear();
+
+    for(const auto& airport : apiAirportList){
+        if(!airport.iata.empty() && fabs(airport.latitude) > 0.01 && fabs(airport.longitude) > 0.01){
+            double x, y;
+            Form1->LatLon2XY(airport.latitude, airport.longitude, x, y);
+
+            if(x < 0 || x > Form1->ObjectDisplay->Width ||
+               y < 0 || y > Form1->ObjectDisplay->Height)
+                continue;
+
+            if(instances.size() >= MAX_AIRPORT_INSTANCES) break;
+            AirportInstance a;
+            a.x = (float)x;
+            a.y = (float)y;
+            a.type = (int)GetAirportType(airport);
+            instances.push_back(a);
+        }
+    }
+
+    if(instances.empty()) return;
+
+    pglBindVertexArray(gAirportInst.vao);
+    pglBindBuffer(GL_ARRAY_BUFFER, gAirportInst.instanceVBO);
+    pglBufferData(GL_ARRAY_BUFFER, instances.size()*sizeof(AirportInstance), instances.data(), GL_STREAM_DRAW);
+
+    pglUseProgram(gAirportInst.program);
+    GLint vp[4];
+    glGetIntegerv(GL_VIEWPORT, vp);
+    pglUniform2f(pglGetUniformLocation(gAirportInst.program, "Viewport"), (float)vp[2], (float)vp[3]);
+    pglUniform1f(pglGetUniformLocation(gAirportInst.program, "Size"), 28.0f);
+
+    pglActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D_ARRAY, atlasTexId);
+    pglUniform1i(pglGetUniformLocation(gAirportInst.program, "atlasTex"), 0);
+
+    pglDrawArraysInstanced(GL_TRIANGLE_FAN, 0, 4, instances.size());
+
+    glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
+    pglBindVertexArray(0);
+    pglUseProgram(0);
 }
 
 // 다양한 리더 스타일 함수들
