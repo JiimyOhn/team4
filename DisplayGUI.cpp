@@ -391,8 +391,8 @@ void __fastcall TForm1::ObjectDisplayPaint(TObject *Sender)
  #ifdef MEASURE_PERFORMANCE
  auto start = std::chrono::steady_clock::now();
  #endif
- DrawObjects();
  DrawAirportMarkers();      // 공항 위치 점 그리기
+ DrawObjects();
  #ifdef MEASURE_PERFORMANCE
  auto end = std::chrono::steady_clock::now();
  auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
