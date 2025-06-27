@@ -242,7 +242,6 @@ public:		// User declarations
 	int __fastcall  XY2LatLon2(int x, int y,double &lat,double &lon );
 	void __fastcall HookTrack(int X, int Y,bool CPA_Hook);
 	void __fastcall DrawObjects(void);
-	void __fastcall DrawAirportMarkers(void);
 	void __fastcall DeleteAllAreas(void);
 	void __fastcall Purge(void);
 	void __fastcall SendCotMessage(AnsiString IP_address, unsigned short Port,char *Buffer,DWORD Length);
@@ -303,26 +302,7 @@ public:		// User declarations
     void __fastcall PlaybackSpeedTrackBarChange(TObject *Sender);
     void __fastcall PlaybackSpeedComboBoxChange(TObject *Sender);
 };
-// --- [공항 마커(Atlas 아이콘) 관련 선언 추가] ---
 
-// 공항 타입(민간, 군용, 헬기장)
-enum AirportType { Civil = 0, Military = 1, Helipad = 2 };
-
-// Atlas PNG 내에서 아이콘의 위치/크기 정보
-struct AtlasRect { int x, y, w, h; };
-
-// Atlas 아이콘 배열(정의는 cpp에서!)
-extern const int iconW, iconH, atlasW, atlasH;
-extern AtlasRect airportAtlasRects[3];
-
-// 텍스처 핸들(정의는 cpp에서!)
-extern GLuint atlasTexId;
-
-// 공항 타입 분류 함수 선언
-AirportType GetAirportType(const AirportInfo& airport);
-
-// 아이콘 그리기 함수 선언
-void DrawAtlasIcon(double x, double y, const AtlasRect& rect, GLuint atlasTexId, int iconDrawSize = 32);
 
 //---------------------------------------------------------------------------
 extern PACKAGE TForm1 *Form1;

@@ -11,7 +11,6 @@
 #include <fileapi.h>
 #include <GL/gl.h>
 #include <GL/glu.h>
-#include <png.h>    // png 라이브러리 설치되어 있어야 함
 #include <fstream>
 #include <Vcl.ComCtrls.hpp> // For TTrackBar
 #include <unordered_map>
@@ -209,78 +208,6 @@ void __fastcall TForm1::InitRouteAirportMaps()
 }
 //---------------------------------------------------------------------------
 
-GLuint atlasTexId = 0;
-const int iconW = 48, iconH = 48;     // 아이콘 하나 크기
-const int atlasW = 144, atlasH = 48;  // 전체 atlas PNG 크기
-
-AtlasRect airportAtlasRects[3] = {
-    {0,   0, iconW, iconH},  // Civil
-    {48,  0, iconW, iconH},  // Military
-    {96,  0, iconW, iconH},  // Helipad
-};
-
-// PNG 파일 경로
-const char* AIRPORT_ICON_ATLAS_PNG = "../../Symbols/airport_atlas.png";
-
-void LoadAtlasTexture() {
-    if (atlasTexId != 0) return; // 이미 로드된 경우 skip
-
-    FILE* fp = fopen(AIRPORT_ICON_ATLAS_PNG, "rb");
-    if (!fp) { printf("[ERROR] 공항 마커 PNG 파일 열기 실패: %s\n", AIRPORT_ICON_ATLAS_PNG); return; }
-
-    png_structp png = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
-    png_infop info = png_create_info_struct(png);
-
-    if (setjmp(png_jmpbuf(png))) { printf("[ERROR] PNG 파싱 실패\n"); fclose(fp); return; }
-    png_init_io(png, fp);
-    png_read_info(png, info);
-
-    int width  = png_get_image_width(png, info);
-    int height = png_get_image_height(png, info);
-    int color_type = png_get_color_type(png, info);
-    int bit_depth  = png_get_bit_depth(png, info);
-
-    if (bit_depth == 16) png_set_strip_16(png);
-    if (color_type == PNG_COLOR_TYPE_PALETTE) png_set_palette_to_rgb(png);
-    if (color_type == PNG_COLOR_TYPE_GRAY && bit_depth < 8) png_set_expand(png);
-    if (png_get_valid(png, info, PNG_INFO_tRNS)) png_set_tRNS_to_alpha(png);
-    if (color_type == PNG_COLOR_TYPE_RGB || color_type == PNG_COLOR_TYPE_GRAY || color_type == PNG_COLOR_TYPE_PALETTE)
-        png_set_filler(png, 0xFF, PNG_FILLER_AFTER);
-    if (color_type == PNG_COLOR_TYPE_GRAY || color_type == PNG_COLOR_TYPE_GRAY_ALPHA)
-        png_set_gray_to_rgb(png);
-
-    png_read_update_info(png, info);
-
-    int rowbytes = png_get_rowbytes(png, info);
-    std::vector<png_byte> imageData(rowbytes * height);
-    std::vector<png_bytep> row_pointers(height);
-
-    for (int y = 0; y < height; y++)
-        row_pointers[y] = imageData.data() + y * rowbytes;
-    png_read_image(png, row_pointers.data());
-    fclose(fp);
-
-	for (int y = 0; y < height; ++y) {
-		for (int x = 0; x < width; ++x) {
-			png_bytep pixel = &imageData[(y * rowbytes) + x * 4]; // RGBA 포맷
-			// 흰색도 투명 처리
-			if (pixel[0] > 240 && pixel[1] > 240 && pixel[2] > 240) {
-				pixel[3] = 0; // 알파 0
-			}
-		}
-    }
-
-    glGenTextures(1, &atlasTexId);
-    glBindTexture(GL_TEXTURE_2D, atlasTexId);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0,
-                 GL_RGBA, GL_UNSIGNED_BYTE, imageData.data());
-
-    glBindTexture(GL_TEXTURE_2D, 0);
-
-    png_destroy_read_struct(&png, &info, NULL);
-}
 //---------------------------------------------------------------------------
 __fastcall TForm1::TForm1(TComponent* Owner)
 	: TForm(Owner)
@@ -397,7 +324,8 @@ void __fastcall TForm1::ObjectDisplayInit(TObject *Sender)
 	glEnable (GL_LINE_STIPPLE);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	//glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-    NumSpriteImages=MakeAirplaneImages();
+    NumSpriteImages = MakeAirplaneImages();
+    MakeAirportImages();
 	MakeAirTrackFriend();
 	MakeAirTrackHostile();
 	MakeAirTrackUnknown();
@@ -864,54 +792,7 @@ bool TForm1::IsRouteMatched(const RouteInfo* route) const {
     return true;
 }
 
-//------------------------------공항 타입 분류---------------------------------------
-AirportType GetAirportType(const AirportInfo& airport) {
-    return Civil;
-}
-//----------------------------------------------------------------------------------------------
 
-// (x, y)는 OpenGL world 좌표, iconDrawSize는 화면 픽셀 사이즈
-void DrawAtlasIcon(double x, double y, const AtlasRect& rect, GLuint texId, int iconDrawSize) {
-    glEnable(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, texId);
-
-    float u0 = rect.x / (float)atlasW, v0 = rect.y / (float)atlasH;
-    float u1 = (rect.x + rect.w) / (float)atlasW, v1 = (rect.y + rect.h) / (float)atlasH;
-    float sz = (float)iconDrawSize;
-
-    glColor4f(1, 1, 1, 1); // 불투명(원본색)
-    glBegin(GL_QUADS);
-    glTexCoord2f(u0, v0); glVertex2f(x - sz/2, y - sz/2);
-    glTexCoord2f(u1, v0); glVertex2f(x + sz/2, y - sz/2);
-    glTexCoord2f(u1, v1); glVertex2f(x + sz/2, y + sz/2);
-    glTexCoord2f(u0, v1); glVertex2f(x - sz/2, y + sz/2);
-    glEnd();
-
-    glBindTexture(GL_TEXTURE_2D, 0);
-    glDisable(GL_TEXTURE_2D);
-}
-
-void __fastcall TForm1::DrawAirportMarkers()
-{
-    // 최초 1회만 PNG 로드
-    LoadAtlasTexture();
-    for (const auto& airport : ::apiAirportList)
-    {
-        if (!airport.iata.empty() && fabs(airport.latitude) > 0.01 && fabs(airport.longitude) > 0.01) {
-            double x, y;
-            LatLon2XY(airport.latitude, airport.longitude, x, y);
-
-            // 화면 영역(픽셀 기준) 체크!
-            if (x < 0 || x > ObjectDisplay->Width || y < 0 || y > ObjectDisplay->Height)
-                continue; // 화면 밖이면 스킵
-
-            AirportType type = GetAirportType(airport);
-            const AtlasRect& rect = airportAtlasRects[(int)type];
-            DrawAtlasIcon(x, y, rect, atlasTexId, 28);
-        }
-    }
-}
-//---------------------------------------------------------------------------
 void __fastcall TForm1::ObjectDisplayMouseDown(TObject *Sender,
 	  TMouseButton Button, TShiftState Shift, int X, int Y)
 {

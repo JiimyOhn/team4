@@ -18,7 +18,7 @@ GoogleLayer::~GoogleLayer() {
 #define EPSILON 0.00001
 
 void GoogleLayer::RenderRegion(Region *rgn) {
-	printf("[GoogleLayer][%s]-------------------------->)\n", __func__);
+	// printf("[GoogleLayer][%s]-------------------------->)\n", __func__);
 	/* select maximal tile level for this region
 	 * (later every tile is checked and it's individual level may be lowered */
 	int level = max4(GetSplitLevel(rgn->w[1].x - rgn->w[0].x, rgn->proj_length(0,1)),

@@ -17,7 +17,7 @@ FlatEarthView::~FlatEarthView() {
 }
 
 void FlatEarthView::Render(bool drawmap) {
-	printf("[FlatEarthView][%s] drawmap (%d)\n", __func__,drawmap);
+	// printf("[FlatEarthView][%s] drawmap (%d)\n", __func__,drawmap);
 	/* x and y span of viewable size in global coords */
 	double yspan = m_Eye.yspan((double)m_ViewportWidth/(double)m_ViewportHeight);
 	double xspan = m_Eye.xspan((double)m_ViewportWidth/(double)m_ViewportHeight);
