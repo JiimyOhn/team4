@@ -1,0 +1,2330 @@
+AirlineCode,Country
+1T,South Africa
+RNX,South Africa
+Q5,United States
+MLA,United States
+AN,Australia
+AAA,Australia
+1B,Singapore
+W9,United States
+AAB,Belgium
+ZI,France
+AAF,France
+AQ,United States
+AAH,United States
+AA,United States
+AAL,United States
+OZ,United States
+AAR,Republic of Korea
+4K,Pakistan
+AAS,Pakistan
+8U,Libya
+AAW,Libya
+Q9,Niger
+AFU,Gambia
+G4,United States
+AAY,United States
+K5,United States
+ABE,Iran
+M3,Denmark
+TUS,Brazil
+04,Ghana
+ABV,Ghana
+GB,Brazil
+ABX,United States
+8V,United States
+ACP,Kenya
+E4,Cameroon
+RSO,Pakistan
+YT,Nepal
+TGA,Togo
+4G,Russia
+7A,United States
+8T,Canadian Territories
+ZY,Albania
+ADE,Albania
+Z7,Barbados
+ADK,Nigeria
+JP,Slovenia
+ADR,Slovenia
+UX,Spain
+AEA,Spain
+EM,United States
+AEB,Benin
+A3,Greece
+AEE,Greece
+KI,Indonesia
+AAG,United Kingdom
+PE,Italy
+AEL,Italy
+KO,United States
+AER,United States
+5W,United Kingdom
+AEU,United Kingdom
+VV,Ukraine
+AEW,Ukraine
+I9,United States
+AEY,Italy
+WK,Switzerland
+AFB,Argentina
+QQ,United States
+UTY,Australia
+FG,Afghanistan
+AFG,Afghanistan
+SU,Russia
+AFL,Russia
+JA,Bosnia and Herzegovina
+BON,Bosnia and Herzegovina
+AF,France
+AFR,France
+SB,France
+ACI,France
+GN,Brazil
+AGN,Gabon
+2O,Sierra Leone
+2Q,United States
+SNC,United States
+V7,Spain
+SNG,Senegal
+SW,Namibia
+NMB,Namibia
+G8,India
+AGB,Gabon
+5D,Ukraine
+SLI,Mexico
+1A,Spain
+AGT,Spain
+7T,Libya
+AGV,Switzerland
+PL,Russia
+PLI,Peru
+8A,Morocco
+BMM,Morocco
+GD,Netherlands
+AHA,Denmark
+LD,Venezuela
+AHK,Hong Kong
+HT,Greece
+AHW,Ukraine
+J2,Azerbaijan
+AHY,Azerbaijan
+U3,Estonia
+AIA,Estonia
+AP,Italy
+AIB,France
+5A,United States
+AIP,United States
+ED,Pakistan
+ABQ,Pakistan
+AB,Germany
+BER,Germany
+AG,United States
+ABR,Ireland
+AI,India
+AIC,India
+ZB,United Kingdom
+BUB,Reunion
+CC,Australia
+ABD,Iceland
+RB,Syrian Arab Republic
+SBK,Bosnia and Herzegovina
+TN,France
+THT,France
+W4,Russia
+BES,France
+IZ,Israel
+AIZ,Israel
+JM,Jamaica
+AJM,Jamaica
+ADH,Italy
+S2,India
+RSH,India
+KM,Malta
+AMC,Malta
+M6,United States
+AJT,United States
+NQ,Japan
+AJX,Japan
+4A,Kiribati
+AKL,Kiribati
+EH,Portugal
+AKX,Japan
+HP,Switzerland
+AWE,United States
+ZW,United States
+AWI,United States
+U9,Russia
+TAK,Russia
+VD,Sweden
+TT,Australia
+KLA,Lithuania
+QM,Malawi
+AML,Malawi
+BM,Indonesia
+NX,Macao
+AMU,Macao
+ZV,Taiwan
+AMW,United States
+HM,Seychelles
+SEY,Seychelles
+AM,Mexico
+AMX,Mexico
+NH,Japan
+ANA,Japan
+YW,Spain
+ANE,Spain
+PX,Papua New Guinea
+ANG,Papua New Guinea
+G9,United Arab Emirates
+ABY,United Arab Emirates
+AC,Canada
+ACA,Canada
+BT,Latvia
+BTI,Latvia
+EL,Japan
+ANK,Japan
+TL,Lebanon
+ANO,Australia
+4N,Canada
+ANT,Canada
+IW,Indonesia
+AOM,France
+NZ,New Zealand
+ANZ,New Zealand
+J6,Russia
+AOC,Russia
+2D,Portugal
+AOG,Argentina
+6V,Uruguay
+VGA,United States
+XM,Italy
+SMX,Italy
+OE,United States
+AOT,Philippines
+GV,Germany
+ARF,Germany
+JW,United States
+APW,United States
+W3,United States
+ARA,Nigeria
+2B,Portugal
+ARD,Portugal
+AR,Argentina
+ARG,Argentina
+QN,Canada
+ARR,Armenia
+AS,ALASKA
+ASA,ALASKA
+4D,Egypt
+ASD,Egypt
+ASE,Russia
+EV,United States
+ASQ,United States
+OB,Russia
+ASZ,Russia
+TC,Tanzania
+ATC,Tanzania
+2J,Burkina Faso
+VBW,Burkina Faso
+HC,Nepal
+ATI,Australia
+FO,Australia
+ATM,Australia
+PJ,France
+SPM,France
+8C,China
+ATN,United States
+OS,Austria
+AUA,Austria
+IQ,Germany
+AUB,Germany
+RU,United Kingdom
+ABW,Russia
+MO,Canada
+AUH,United Arab Emirates
+5N,Russia
+AUL,Russia
+GR,United States
+AUR,United Kingdom
+NO,United States
+AUS,Australia
+AU,Argentina
+AUT,Argentina
+AO,Russia
+AUZ,Australia
+AV,AVIANCA
+AVA,AVIANCA
+NF,Vanuatu
+AVN,Vanuatu
+K8,Zambia
+ZAK,Zambia
+B9,Bangladesh
+BGD,Bangladesh
+DR,France
+BIE,France
+7E,Germany
+AWU,Germany
+6G,United Kingdom
+AWW,United Kingdom
+TX,France
+FWI,France
+IX,India
+AXB,India
+HJ,Australia
+AXF,Australia
+XT,Netherlands
+AXL,Netherlands
+AK,Malaysia
+AXM,Malaysia
+AXY,France
+3G,Russia
+AYZ,Russia
+AZ,Italy
+AZA,Italy
+ZE,South Korea
+AZE,Germany
+Z8,Bolivia
+AZN,Bolivia
+UM,Zimbabwe
+AZW,Zimbabwe
+R7,Venezuela
+OCA,Venezuela
+FV,Russia
+SDM,Russia
+RX,United States
+AEH,Hungary
+MQ,United States
+EGF,United States
+FF,France
+ML,Maldives
+VU,Ivory Coast
+VUN,Ivory Coast
+BP,Botswana
+BOT,Botswana
+GS,United States
+UPA,United Kingdom
+VT,French Polynesia
+VTA,French Polynesia
+3N,Ukraine
+URG,Ukraine
+VL,Bulgaria
+VIM,Bulgaria
+FK,Togo
+WTA,Togo
+G2,Gabon
+VXG,Gabon
+V8,Russian Federation
+VAS,Russian Federation
+VE,Italy
+AVE,Venezuela
+V5,Slovakia
+VLI,Mexico
+CA,China
+CCA,China
+Q6,Peru
+CDP,Peru
+5F,United States
+CIR,United States
+QC,Cameroon
+CRD,Mozambique
+NV,Japan
+CRF,Japan
+CV,Luxembourg
+CVA,New Zealand
+CW,Marshall Islands
+CWM,Marshall Islands
+ZA,Russia
+CYD,United States
+AH,Algeria
+DAH,Algeria
+DHI,Indonesia
+ER,Spain
+DHL,United States
+HO,China
+DJA,Algeria
+EN,Italy
+DLA,Italy
+D9,Russia
+DNV,Russia
+NM,New Zealand
+DRD,Spain
+EE,Estonia
+EAY,Estonia
+4F,Germany
+ECE,Germany
+EI,Ireland
+EIN,Ireland
+E8,Thailand
+ELG,Italy
+KY,Greece
+EQL,Air S
+PC,Turkey
+FAJ,Fiji
+OF,Finland
+FIF,Finland
+FJ,Fiji
+FJI,Fiji
+RC,Faroe Islands
+FLI,Faroe Islands
+QH,Kyrgyzstan
+FLZ,United States
+NY,Iceland
+FXI,Iceland
+2P,Philippines
+GAP,Philippines
+ZX,Japan
+GGN,Canada
+2U,Guinea
+GIP,Guinea
+0A,Lithuania
+GNT,Lithuania
+DA,Nigeria
+GRG,Georgia
+GL,United States
+GRL,Denmark
+LL,Mexico
+GRO,Mexico
+5Y,United States
+GTI,United States
+GG,United States
+GUY,French Guiana
+H9,Turkey
+HAD,Haiti
+HAH,Comoros
+HZT,Togo
+JAB,Myanmar
+IP,Iceland
+JOL,Kazakhstan
+QK,Canada
+JZA,Canada
+KK,Turkey
+KKK,Turkey
+KC,Kazakhstan
+KZR,Kazakhstan
+LV,Albania
+LBC,Albania
+D4,Italy
+LID,Italy
+CD,India
+LLR,India
+XL,Ecuador
+LNE,Ecuador
+A6,Austria
+LPV,Austria
+TD,Netherland
+LUR,Armenia
+LK,Portugal
+LXR,Portugal
+MK,Mauritius
+MAU,Mauritius
+MD,Madagascar
+MDG,Madagascar
+9U,Moldova
+MLD,Moldova
+M0,Mongolia
+MNG,Mongolia
+A7,Spain
+MPD,Spain
+QO,New Zealand
+MPX,Mexico
+MR,Germany
+MRT,Mauritania
+3S,Guadeloupe
+8D,United States
+F4,Italy
+NBK,Nigeria
+AJ,Nigeria
+NIG,Nigeria
+8Y,China
+PBU,Burundi
+OT,Australia
+PEL,Australia
+AD,Brazil
+PRZ,Indonesia
+QD,Russia
+QCL,Uruguay
+QS,Czech Republic
+QSC,Kenya
+4Y,France
+RBU,France
+MC,United States
+RCH,United States
+RE,Ireland
+REA,Ireland
+UU,France
+REU,France
+6K,Philippines
+RIT,Philippines
+RK,Cambodia
+RKA,Ivory Coast
+A5,France
+RLA,France
+QL,Sri Lanka
+RLN,Sri Lanka
+MV,Armenia
+RML,Armenia
+20,Sierra Leone
+RNE,Sierra Leone
+U8,Armenia
+RNV,Armenia
+BQ,Uruguay
+ROM,Dominican Republic
+P5,Colombia
+RPB,Colombia
+BF,Iceland
+RSR,Republic of the Congo
+5L,Bolivia
+RSU,Bolivia
+EX,France
+SDO,Dominican Republic
+JR,China
+SER,Mexico
+Z3,Zimbabwe
+SMJ,Zimbabwe
+SPJ,Macedonia
+GM,Germany
+SVK,Slovakia
+R3,Russia
+SYL,Russia
+VW,Mexico
+TAO,Mexico
+JY,Italy
+TCI,Turks and Caicos Islands
+OR,Netherlands
+TFL,Netherlands
+CG,Papua New Guinea
+TOK,Papua New Guinea
+TY,Spain
+TPC,France
+FL,United States
+TRS,United States
+TS,Canada
+TSC,Canada
+EC,Uzbekistan
+TWN,Uzbekistan
+VO,Austria
+TYR,Austria
+DW,Germany
+UCR,Ukraine
+6U,Germany
+UKR,Ukraine
+2K,Ecuador
+GLG,Ecuador
+6R,Russia
+DRU,Russia
+8Q,Maldives
+BAJ,United States
+BA,United Kingdom
+BAW,United Kingdom
+BG,Bangladesh
+BBC,Bangladesh
+BBD,Iceland
+B4,United Kingdom
+BCF,Austria
+BZ,United States
+BDA,India
+J4,Russia
+BFL,Canada
+A8,Benin
+BGL,Benin
+4T,Switzerland
+BHP,Switzerland
+UP,Bahamas
+BHS,Bahamas
+E6,Russia
+TH,Brazil
+BS,United Kingdom
+BIH,United Kingdom
+BKA,United States
+PG,Thailand
+BKP,Thailand
+KF,Finland
+BLF,Finland
+JV,Canada
+BLS,Canada
+B3,Nigeria
+BLV,Nigeria
+BD,United Kingdom
+BMA,United Kingdom
+WW,United Kingdom
+BMI,United Kingdom
+CH,United States
+BMJ,United States
+5Z,Colombia
+BML,Bangladesh
+BO,Indonesia
+BOU,Indonesia
+BV,Italy
+BPA,Italy
+7R,Russia
+BRB,Brazil
+8E,United States
+BRG,United States
+B2,Belarus
+BRU,Belarus
+K6,Cambodia
+BRV,Democratic Republic of the Congo
+BN,Australia
+BNF,United States
+GQ,United States
+BSY,United States
+V9,Lithuania
+BTC,Russia
+7P,Indonesia
+BTV,Indonesia
+J8,Malaysia
+BVT,Malaysia
+QW,Germany
+BWG,Germany
+BYE,Indonesia
+DB,France
+BZH,France
+E9,Russia
+CXS,United States
+SN,Belgium
+DAT,Belgium
+NT,Spain
+IBB,Spain
+0B,Romania
+JOR,Romania
+KJ,United Kingdom
+LAJ,United Kingdom
+FB,Bulgaria
+LZB,Bulgaria
+8N,Sweden
+NKF,Sweden
+5C,Israel
+ICL,Israel
+AW,Burma
+SCH,Netherlands
+XG,Spain
+CLI,Spain
+CAV,Canada
+R9,United States
+CAM,United States
+UY,Cameroon
+UYC,Cameroon
+C6,Canada
+CJA,Canada
+CP,United States
+CDN,Canada
+5T,Canada
+MPE,Canada
+W2,Netherlands
+CWA,Canada
+9K,United States
+KAP,United States
+PT,Peru
+CCI,United States
+GGC,United States
+2G,United States
+CRG,Italy
+W8,Canada
+CJT,Canada
+CLX,Luxembourg
+BW,Trinidad and Tobago
+BWA,Trinidad and Tobago
+8B,Thailand
+GFI,Antigua and Barbuda
+V3,Romania
+KRP,Romania
+RV,Iran
+CPN,Iran
+CX,Hong Kong SAR of China
+CPA,Hong Kong SAR of China
+KX,Cayman Islands
+CAY,Cayman Islands
+5J,Philippines
+CEB,Philippines
+7N,Serbia
+CNA,Serbia
+C0,Poland
+CLW,Poland
+J7,Norway
+CVC,Russia
+WE,Thailand
+CWC,United States
+OP,India
+CHK,United States
+MG,United States
+CCP,United States
+2Z,China
+CGN,China
+S8,Finland
+CSU,Chad
+RP,United States
+CHQ,United States
+C8,United States
+WDY,United States
+CI,Taiwan
+CAL,Taiwan
+CK,China
+CKK,China
+MU,China
+CES,China
+CJ,United Kingdom
+CBF,China
+WH,China
+CNW,China
+CYZ,China
+CZ,China
+CSN,China
+HR,Germany
+CUA,China
+XO,Spain
+CXH,China
+3Q,China
+CYH,China
+X7,United States
+CHF,Russia
+A2,United States
+CIU,Peru
+QI,Denmark
+CIM,Denmark
+C9,Germany
+RUS,Germany
+CF,Sweden
+SDR,Sweden
+G3,Greece
+CIX,Burundi
+WX,Ireland
+BCY,Ireland
+CFE,United Kingdom
+CT,Italy
+CAT,Taiwan
+6P,United States
+ISG,Italy
+BX,Republic of Korea
+CST,Norway
+DQ,United States
+9L,United States
+CJC,United States
+OH,United States
+COM,United States
+MN,South Africa
+CAW,South Africa
+C5,United States
+UCA,United States
+KR,Comoros
+CWK,Comoros
+GJ,Italy
+MXC,Mexico
+CPZ,United States
+DE,Germany
+CFG,Germany
+6A,Mexico
+CHP,Mexico
+C3,Qatar
+KIS,Germany
+CO,United States
+COA,United States
+PVV,Russia
+CS,United States
+CMI,United States
+V0,Venezuela
+VCV,Venezuela
+CM,Panama
+CMP,Panama
+SS,France
+CRL,France
+XK,France
+CCM,France
+F5,Moldova
+COZ,Nepal
+OU,Croatia
+CTN,Croatia
+QE,Switzerland
+ECC,Switzerland
+CU,Cuba
+CUB,Cuba
+CY,Cyprus
+CYP,Cyprus
+YK,Turkey
+OK,Czech Republic
+CSA,Czech Republic
+WD,Netherlands
+DSR,Uganda
+DX,Denmark
+DTR,Denmark
+ES,Germany
+DHX,Bahrain
+L3,Austria
+JOS,Guatemala
+D3,Djibouti
+DAO,Djibouti
+N2,Nigeria
+DAG,Russia
+H8,Russia
+KHB,Russia
+0D,Switzerland
+DWT,Switzerland
+D5,India
+DAU,Germany
+DL,United States
+DAL,United States
+2A,Germany
+1I,United States
+AMB,Germany
+D7,Malaysia
+RDN,Argentina
+DIR,Indonesia
+DH,Israel
+DVA,United States
+D8,Djibouti
+DJB,Djibouti
+DO,Dominican Republic
+DOA,Dominican Republic
+E3,Russia
+DMO,Russia
+UDC,Ukraine
+KA,DRAGON
+HDA,DRAGON
+KB,Bhutan
+DRK,Bhutan
+DI,Germany
+BAG,Germany
+1C,China
+EUJ,Ireland
+BR,Taiwan
+EVA,Taiwan
+H7,Uganda
+QU,Uganda
+UGX,Uganda
+S9,Ghana
+HSA,Kenya
+T3,United Kingdom
+EZE,United Kingdom
+DK,Australia
+ELA,Australia
+SGR,United States
+EDW,Switzerland
+MS,Egypt
+MSR,Egypt
+LY,Israel
+ELY,Israel
+UZ,Libya
+BRQ,Libya
+EK,United Arab Emirates
+UAE,United Arab Emirates
+CFS,United States
+EU,Ecuador
+EEA,Ecuador
+E0,United States
+ESS,United States
+B8,Eritrea
+ERT,Eritrea
+E7,United Kingdom
+ESF,Mexico
+OV,Estonia
+ELL,Estonia
+ET,Ethiopia
+ETH,Ethiopia
+EY,United Arab Emirates
+ETD,United Arab Emirates
+RZ,Sweden
+UI,Cyprus
+ECA,Cyprus
+EEU,Italy
+K2,Poland
+ELO,Poland
+3W,Malawi
+EMX,Austria
+EA,Germany
+EAL,Germany
+QY,Canada
+BCS,Belgium
+EAF,United Kingdom
+EW,Germany
+EWG,Germany
+EZ,Denmark
+EIA,United States
+JN,United Kingdom
+XLA,United Kingdom
+MB,Turkey
+EXA,Canada
+OW,United States
+EXK,United States
+EXV,Sri Lanka
+EO,Democratic Republic of the Congo
+LHN,United States
+XE,United States
+BTA,United States
+U2,United States
+EZY,United Kingdom
+IH,Sweden
+EF,Taiwan
+EFA,Taiwan
+F6,Faroe Islands
+RCK,Faroe Islands
+F3,Burkina Faso
+FSW,Burkina Faso
+FX,Brazil
+FDX,United States
+N8,United States
+HGK,Uganda
+4S,Italy
+FNC,Republic of the Congo
+AY,Finland
+FIN,Finland
+FC,Finland
+WBA,Finland
+FY,Australia
+FFM,Malaysia
+7F,Canada
+FAB,Canada
+DP,United Kingdom
+FCA,United Kingdom
+8F,Sao Tome and Principe
+FFR,Czech Republic
+B5,United Kingdom
+FLT,United Kingdom
+PA,Iran
+FCL,United States
+RF,United States
+FWL,United States
+F2,Turkey
+FLM,Turkey
+SH,Australia
+FLY,Sweden
+XAX,Malaysia
+TE,Lithuania
+LIL,Lithuania
+LF,Sweden
+NDC,Sweden
+F7,Switzerland
+BBO,Switzerland
+BE,United Kingdom
+BEE,United Kingdom
+GSM,United Kingdom
+VY,Spain
+FOS,Taiwan
+HK,Burma
+FSC,United States
+FP,United States
+FRE,United States
+F9,United States
+FFT,United States
+2F,United States
+FTA,United States
+FH,Ireland
+FUA,Spain
+GT,United Kingdom
+GBL,United Kingdom
+7O,Colombia
+GAL,Kyrgyzstan
+1G,United States
+GC,Gambia
+GNR,Gambia
+G7,United States
+GNF,Italy
+GA,Indonesia
+GIA,Indonesia
+GZP,Russia
+GCO,United States
+A9,Georgia
+TGZ,Georgia
+QB,Georgia
+GFG,Georgia
+ST,Germany
+GMI,Germany
+4U,Germany
+GWI,Germany
+GP,Spain
+GES,Spain
+G0,Ghana
+GHB,Ghana
+GOW,India
+GK,Pakistan
+GJS,United States
+GLO,Brazil
+DC,Sweden
+GAO,Sweden
+G1,India
+IKA,Kyrgyzstan
+GUN,United States
+ZK,United States
+GLA,United States
+IJ,Japan
+GWL,China
+TA,Costa Rica
+TAT,Costa Rica
+J9,Kuwait
+GIF,Guinea
+GUJ,India
+GF,Bahrain
+GBA,Bahrain
+H6,United States
+HAG,United States
+HHN,Germany
+HU,China
+CHH,China
+1R,Chile
+2T,Haiti
+HAM,Haiti
+4R,Germany
+HHI,Germany
+X3,Germany
+HLX,Germany
+HF,Germany
+HLF,Germany
+HB,United States
+HAR,United States
+HQ,United States
+HMY,Canada
+HA,United States
+HAL,United States
+BH,Canada
+HN,South Korea
+HVY,Australia
+8H,France
+HFR,France
+JB,Canada
+JBA,Canada
+ZU,Cyprus
+HCY,Cyprus
+T4,Greece
+HEJ,Greece
+HW,Canada
+FHE,Switzerland
+2L,Switzerland
+OAW,Switzerland
+DU,Norway
+HMS,Bulgaria
+ALX,Democratic Republic of the Congo
+UD,France
+HER,France
+5K,Portugal
+HFY,Portugal
+HD,Japan
+ADO,Japan
+H5,Russia
+HOA,Spain
+HX,Hong Kong SAR of China
+CRK,Hong Kong SAR of China
+UO,Hong Kong SAR of China
+HKE,Hong Kong SAR of China
+HH,Germany
+QX,United States
+QXE,United States
+HZA,Australia
+H4,Cape Verde
+II,Russia
+CSQ,United States
+1F,United Kingdom
+1U,Russia
+IB,Spain
+IBE,Spain
+IWD,Spain
+FW,Japan
+IBX,Japan
+FI,Iceland
+ICE,Iceland
+IK,Sri Lanka
+ITX,Azerbaijan
+IDE,United States
+6E,India
+IGO,India
+IC,India
+IAC,India
+IBU,United States
+QZ,Indonesia
+AWQ,Indonesia
+IO,Indonesia
+IAA,Indonesia
+IJT,Colombia
+IIN,Cape Verde
+D6,South Africa
+ILN,South Africa
+SUW,Russia
+RS,Canada
+ICT,Colombia
+ID,South Africa
+ITK,South Africa
+6I,Sierra Leone
+IBZ,Sweden
+3L,Austria
+ISK,Austria
+I4,Jamaica
+FWA,Netherlands
+IR,Iran
+IRA,Iran
+EP,Iran
+IRC,Iran
+IA,Iraq
+IAW,Iraq
+IS,United States
+2S,India
+SDY,United States
+8L,United Kingdom
+CGP,United Arab Emirates
+CN,Canada
+IF,Spain
+ISW,Spain
+WC,Honduras
+ISV,Honduras
+6H,Israel
+ISR,Israel
+9X,Venezuela
+ACL,Italy
+GI,Kyrgyzstan
+IZM,Turkey
+JC,Japan
+JEX,Japan
+JO,Japan
+JAZ,Japan
+1M,Russia
+JL,Japan
+JAL,Japan
+EG,Japan
+JAA,Japan
+NU,Japan
+JTA,Japan
+JU,Serbia
+JAT,Serbia
+VJ,Cambodia
+JTY,Indonesia
+JZR,Kuwait
+7C,Republic of Korea
+JJA,Republic of Korea
+9W,India
+JAI,India
+QJ,United States
+0J,Switzerland
+3K,Singapore
+JSA,Singapore
+LS,United Kingdom
+EXS,United Kingdom
+8J,Russia
+JFU,Morocco
+B6,United States
+JBU,United States
+JF,United States
+JAF,Belgium
+JCS,Switzerland
+SG,India
+JGO,Canada
+JQ,Australia
+JST,Australia
+JX,Egypt
+JEC,Singapore
+GX,Germany
+JXX,Iceland
+R5,Malta
+JAV,Jordan
+DKH,China
+KD,Russia
+KNI,Russia
+WA,United States
+KLC,Netherlands
+KL,Netherlands
+KLM,Netherlands
+QNK,Nigeria
+K4,United States
+CKS,United States
+RQ,Afghanistan
+KMF,Afghanistan
+E2,Ghana
+KMP,Cambodia
+V2,United States
+AKT,Russia
+KV,Russia
+MVD,Russia
+M5,United States
+KEN,United States
+KQ,Kenya
+KQA,Kenya
+KEE,Canada
+IT,India
+KFR,India
+Y9,Iran
+IRK,Iran
+KP,United States
+KIA,United States
+7K,Russia
+KGL,Russia
+KMV,Russia
+KE,Republic of Korea
+KAL,Republic of Korea
+7B,Russia
+KJC,Russia
+K9,Russia
+KRI,Russia
+GW,Russia
+KIL,Russia
+KPA,China
+KU,Kuwait
+KAC,Kuwait
+GO,Turkey
+KZU,Turkey
+N5,United States
+KGZ,Kyrgyzstan
+LYN,Kyrgyzstan
+R8,Russia
+KGA,Kyrgyzstan
+KYV,Turkey
+LAB,United States
+LR,Costa Rica
+LRC,Costa Rica
+KG,United States
+BNX,Venezuela
+LA,Chile
+LAN,Chile
+4M,Argentina
+DSM,Argentina
+LU,Chile
+LXP,Chile
+LP,Peru
+LPE,Peru
+LO,Poland
+LOT,Poland
+LTE,Spain
+LTO,Austria
+LT,Lithuania
+LTU,Lithuania
+N6,Peru
+JEV,Spain
+LKN,Sri Lanka
+QV,Lao Peoples Democratic Republic
+LAO,Lao Peoples Democratic Republic
+L7,Ukraine
+LPN,Philippines
+NG,Austria
+LDA,Austria
+LQ,Russia
+LAQ,Lebanon
+LI,Antigua and Barbuda
+LIA,Antigua and Barbuda
+LN,Libya
+LAA,Libya
+LNP,Chile
+8z,Venezuela
+LER,Venezuela
+TUY,Venezuela
+LCD,Mexico
+LM,Italy
+LAM,Mozambique
+JT,Indonesia
+LNI,Indonesia
+LVG,Italy
+LB,India
+LLB,Bolivia
+HE,Germany
+LGW,Germany
+LH,Germany
+DLH,Germany
+GEC,Germany
+CL,Germany
+CLH,Germany
+L1,Argentina
+DV,Kazakhstan
+LTF,Germany
+L5,Norway
+LTR,Norway
+LG,Luxembourg
+LGL,Luxembourg
+5V,Ukraine
+UKW,Ukraine
+L2,United States
+LYC,United States
+MJ,Argentina
+LPR,Argentina
+M7,Haiti
+MAA,Mexico
+IN,Macedonia
+MAK,Macedonia
+OM,Mongolia
+MGL,Mongolia
+MNB,Turkey
+MCK,Australia
+DM,Denmark
+W5,Iran
+IRM,Iran
+M2,Germany
+MZS,Gambia
+MH,Malaysia
+MAS,Malaysia
+TF,Sweden
+SCW,Sweden
+MAC,Malta
+MA,Hungary
+MAH,Hungary
+RI,Indonesia
+MDL,Indonesia
+AE,Taiwan
+MDA,Taiwan
+JE,South Africa
+MNO,South Africa
+MRW,Ukraine
+MSL,Sudan
+MP,Netherlands
+MPH,Netherlands
+Q4,Russia
+MVL,Russia
+8M,Myanmar
+MXL,Sweden
+MY,Egypt
+MXJ,United States
+MW,Belize
+MYD,Belize
+IM,Lebanon
+MNJ,Lebanon
+IG,Italy
+ISS,Italy
+MZ,Indonesia
+MNA,Indonesia
+YV,United States
+ASH,United States
+XJ,United States
+MES,United States
+MX,Mexico
+MXA,Mexico
+BSK,United States
+ME,Lebanon
+MEA,Lebanon
+JI,United States
+MDW,United States
+YX,United States
+MEP,United States
+MWA,Egypt
+2M,Moldova
+MDV,Moldova
+MON,United Kingdom
+8I,Italy
+YM,Montenegro
+MGX,Montenegro
+3R,Russia
+GAI,Russia
+M9,Ukraine
+MSI,Ukraine
+NZM,New Zealand
+N4,Mexico
+MTC,Sierra Leone
+VZ,United Kingdom
+MYT,United Kingdom
+UB,Myanmar
+UBA,Myanmar
+MMM,Myanmar
+ACK,United States
+P9,Peru
+UE,Russia
+NAS,Eritrea
+NCN,Chile
+N7,Spain
+ROK,United States
+9O,Cameroon
+NC,United States
+NJS,Australia
+CE,South Africa
+NTW,South Africa
+ON,Nauru
+RON,Nauru
+1N,United States
+RA,Nepal
+RNA,Nepal
+NOS,Italy
+EJA,United States
+EJ,United States
+NEA,United States
+2N,Sweden
+NTJ,Sweden
+HG,Austria
+NLY,Austria
+KZ,United States
+NCA,Japan
+DD,Thailand
+NOK,Thailand
+JH,Japan
+NES,Brazil
+6N,Sweden
+NRD,Sweden
+N9,United Kingdom
+NFA,Denmark
+NWL,Canada
+NAC,United States
+U7,United States
+NW,United States
+NWA,United States
+NWR,Australia
+J3,Canada
+PLR,Canada
+DY,Norway
+NAX,Norway
+BJ,Tunisia
+LBT,Tunisia
+M4,Russia
+NOV,Sudan
+NVR,Sweden
+ACQ,Peru
+XY,Saudi Arabia
+KNE,Saudi Arabia
+UQ,Uganda
+OCM,Australia
+CR,Sweden
+O8,Hong Kong
+OHK,Hong Kong
+VC,Australia
+VCX,Italy
+O6,Brazil
+ONE,Brazil
+O2,Guinea
+OA,Greece
+OAL,Greece
+WY,Oman
+OMA,Oman
+OY,United States
+OAE,United States
+N3,Russia
+OMS,Russia
+OHY,Turkey
+R2,Russia
+ORB,Russia
+OX,Thailand
+OEA,Thailand
+OGN,New Zealand
+OL,Germany
+OLT,Germany
+OJ,Nigeria
+OLA,Nigeria
+OZR,United States
+O7,Australia
+OZJ,Australia
+PV,Spain
+PNR,Spain
+9Q,Thailand
+PBA,Thailand
+PU,Uruguay
+PUA,Uruguay
+U4,Cambodia
+PMT,Cambodia
+Y5,Kazakhstan
+PCE,United States
+BL,Vietnam
+PIC,Vietnam
+DJ,Australia
+PBN,New Zealand
+8P,Canada
+PCO,Canada
+Q8,Philippines
+PEC,Philippines
+PS,Ukraine
+PSX,United States
+LW,United States
+NMI,United States
+PK,Pakistan
+PIA,Pakistan
+PTP,Palau
+PF,Iceland
+PNW,Egypt
+NR,Hong Kong
+PIR,Afghanistan
+PAA,United States
+PQ,Russia
+PNF,Ivory Coast
+P8,Vietnam
+PTN,Brazil
+I7,India
+PMW,India
+HPA,Haiti
+PGT,Turkey
+KS,United States
+PEN,United States
+PGP,Russia
+PR,Philippines
+PAL,Philippines
+9R,Colombia
+VAP,Thailand
+PI,Fiji
+PDT,United States
+9E,United States
+FLG,United States
+PO,Portugal
+PAC,United States
+PH,Samoa
+PAO,Samoa
+PLB,New Zealand
+PD,Canada
+POE,Canada
+NI,Portugal
+PGA,Portugal
+BK,United States
+PDC,United States
+PW,Tanzania
+PRF,Tanzania
+TO,France
+PSD,Cambodia
+FE,United States
+WCP,United States
+8W,Germany
+PWF,Germany
+P0,Zambia
+QF,Australia
+QFA,Australia
+QR,Qatar
+QTR,Qatar
+R6,Guatemala
+1D,United States
+RHC,United Kingdom
+V4,Kyrgyzstan
+REK,Kyrgyzstan
+FN,Morocco
+ZL,Australia
+RXA,Australia
+3C,United States
+CEA,United States
+ROA,United States
+RW,United States
+RPA,United States
+RH,Indonesia
+RPH,Indonesia
+C7,South Korea
+RLE,Brazil
+GRN,United States
+SL,Thailand
+RSL,Brazil
+R4,Russia
+GZ,Cook Islands
+RAR,Cook Islands
+RR,France
+RFR,United Kingdom
+MJN,Oman
+AT,Morocco
+RAM,Morocco
+R0,Pakistan
+RPK,Pakistan
+RYL,Aruba
+BI,Brunei
+RBA,Brunei
+RJ,Jordan
+RJA,Jordan
+RKH,Cambodia
+WR,Canada
+HRH,Tonga
+P7,Paraguay
+ESL,Russia
+WB,Rwanda
+RWD,Rwanda
+RD,United States
+RYN,United States
+FR,Ireland
+RYR,Ireland
+YS,France
+RAE,France
+S4,Portugal
+RZO,Portugal
+SA,South Africa
+SAA,South Africa
+NL,Pakistan
+SAI,Pakistan
+SK,Sweden
+SAS,Sweden
+S7,Russia
+SBI,Russia
+BB,United States
+SBS,United States
+UL,Sri Lanka
+ALK,Sri Lanka
+SY,United States
+SCX,United States
+SEH,Greece
+SEJ,India
+I6,Mexico
+SEQ,Thailand
+SET,Ecuador
+7G,Japan
+SFJ,Japan
+FA,United States
+SFR,South Africa
+SGY,United States
+SP,Portugal
+SAT,Portugal
+SQ,Singapore
+SIA,Singapore
+5M,Russia
+SIB,Russia
+SI,Ireland
+SIH,Ireland
+XS,United States
+SIT,Belgium
+SJ,Indonesia
+SJY,Indonesia
+ZS,Saudi Arabia
+SMY,Saudi Arabia
+SQC,Singapore
+FT,Cambodia
+SRH,Cambodia
+SX,Switzerland
+SRK,Switzerland
+SM,Philippines
+SRL,Sweden
+DG,Philippines
+SRQ,Philippines
+BBB,Sweden
+5G,Canada
+SSV,Canada
+FS,Argentina
+STU,Argentina
+SD,Sudan
+SUD,Sudan
+SUF,Fiji
+SUS,Denmark
+SV,Saudi Arabia
+SVA,Saudi Arabia
+WN,United States
+SWA,United States
+A4,Argentina
+SWD,Argentina
+WG,Canada
+SWG,Canada
+LX,Switzerland
+SWR,Switzerland
+SR,Switzerland
+WV,Sweden
+SWV,Sweden
+SWW,Ukraine
+XQ,Turkey
+SXS,Turkey
+SYR,Syrian Arab Republic
+AL,Belarus
+SYX,United States
+ZP,Russia
+AZQ,Azerbaijan
+E5,Egypt
+BRZ,Russia
+SC,China
+CDG,China
+9S,China
+CQH,China
+3U,China
+CSC,China
+FM,China
+CSH,China
+ZH,China
+CSZ,China
+CXI,China
+7L,Israel
+ERO,Israel
+NE,Slovakia
+ESK,Slovakia
+CQ,Russia
+EXL,Australia
+SO,Haiti
+HKA,United States
+JK,Spain
+JKK,Spain
+MRR,United States
+1Z,Australia
+1S,United States
+1H,Greece
+1Q,Russia
+1K,Germany
+2C,France
+NK,United States
+NKS,United States
+NSE,Colombia
+S0,United States
+OKS,Gambia
+OSL,Nigeria
+PZR,United States
+SKB,United States
+SKI,Turks and Caicos Islands
+S3,Venezuela
+BBR,Venezuela
+H2,Chile
+SKU,Chile
+OO,United States
+SKW,United States
+JZ,Sweden
+SKX,Sweden
+BC,Japan
+SKY,Japan
+LJ,South Korea
+SLA,Sierra Leone
+MI,Singapore
+SLK,Singapore
+6Q,Slovakia
+SLL,Slovakia
+PY,Suriname
+SLM,Suriname
+NB,Denmark
+SNB,Denmark
+6J,Japan
+SNJ,Japan
+IE,Solomon Islands
+SOL,Solomon Islands
+6W,Russia
+SOV,Russia
+HZ,Kazakhstan
+SOZ,Kazakhstan
+S5,Kyrgyzstan
+TCF,United States
+VSV,Kazakhstan
+S6,United States
+EQ,Ecuador
+TAE,Ecuador
+JJ,Brazil
+TAM,Brazil
+TP,Portugal
+TAP,Portugal
+TU,Tunisia
+TAR,Tunisia
+3V,France
+TAY,Belgium
+TBG,Haiti
+T2,Thailand
+TCG,Thailand
+FQ,Belgium
+TCW,Belgium
+MT,United Kingdom
+TCX,United Kingdom
+TQ,United States
+TDM,Moldova
+L9,China
+TLW,Austria
+TEP,Russia
+ZT,Chile
+AWC,United Kingdom
+TR,Singapore
+TGW,Australia
+TG,Thailand
+THA,Thailand
+FD,Thailand
+AIQ,Thailand
+TK,Turkey
+THY,Turkey
+T7,France
+TJT,France
+9I,Spain
+TKY,Thailand
+TLP,Netherland
+TMA,Lebanon
+GY,Gabon
+TMG,Indonesia
+3P,Aruba
+TNM,Aruba
+TOB,Libya
+TI,Brazil
+TOL,United States
+BY,United Kingdom
+TOM,United Kingdom
+PM,Belize
+TOS,Belize
+TOW,United States
+QT,Colombia
+TPA,Colombia
+GE,Taiwan
+TNA,Taiwan
+HV,Netherlands
+TRA,Netherlands
+VR,Portugal
+TCV,Portugal
+T9,Thailand
+TRZ,United States
+TSE,Malaysia
+TSJ,Kyrgyzstan
+9T,Canada
+ABS,Canada
+UN,Russia
+TSO,Russia
+TSX,Thailand
+T5,Turkmenistan
+TUA,Turkmenistan
+UG,Tunisia
+TUI,Tunisia
+T6,United States
+TVR,Ukraine
+TVS,Czech Republic
+TW,South Korea
+TWA,United States
+TXC,Belarus
+6B,Sweden
+BLX,Sweden
+DT,Angola
+DTA,Angola
+SF,France
+DTH,Algeria
+PZ,Paraguay
+LAP,Paraguay
+AX,United States
+LOF,United States
+1E,Russia
+2H,Belgium
+1L,United States
+OSY,United States
+RO,Romania
+ROT,Romania
+3T,Azerbaijan
+URN,Azerbaijan
+8R,Brazil
+TIB,Brazil
+U5,United States
+GWY,United States
+UA,United States
+UAL,United States
+JUS,United States
+U6,Russia
+SVR,Russia
+UF,Ukraine
+UKM,Ukraine
+6Z,Ukraine
+UKS,Ukraine
+5X,United States
+UPS,United States
+US,United States
+USA,United States
+UT,Russia
+UTA,Russia
+HY,Uzbekistan
+UZB,Uzbekistan
+AUI,Ukraine
+UH,United States
+VA,Australia
+VAU,Australia
+VF,Singapore
+VLU,Singapore
+VAL,Canada
+VN,Vietnam
+HVN,Vietnam
+NN,Russia
+MOV,Russia
+2R,Argentina
+Y4,Mexico
+VOI,Mexico
+VI,Russia
+VDA,Russia
+VX,United States
+VRD,United States
+TV,Belgium
+VEX,Belgium
+VK,Nigeria
+VGN,Nigeria
+VS,United Kingdom
+VIR,United Kingdom
+ZG,Macao
+VVM,Macao
+VLE,Italy
+VLG,Spain
+XF,Russia
+VLK,Russia
+LC,Brazil
+VLO,Brazil
+VM,Bulgaria
+VOA,Bulgaria
+VOZ,Australia
+VBI,Australia
+RG,Brazil
+VRN,Brazil
+VP,Brazil
+VSP,Brazil
+VG,Belgium
+VLM,Belgium
+7W,Peru
+WJ,Brazil
+WEB,Brazil
+2W,Austria
+WLC,Austria
+SWN,Sweden
+8O,Canada
+WS,Canada
+WJA,Canada
+WAL,United States
+WWD,United States
+WF,Norway
+WIF,Norway
+IV,Italy
+JET,Italy
+WON,Indonesia
+WAK,United States
+W6,Hungary
+WZZ,Hungary
+8Z,Bulgaria
+WVL,Bulgaria
+WO,United States
+WOA,United States
+1P,United States
+WRF,United States
+SE,France
+SEU,France
+MF,China
+CXA,China
+XP,Portugal
+CXP,United States
+YL,Russia
+LLM,Russia
+Y8,Russia
+YZR,China
+IY,Yemen
+IYE,Yemen
+Q3,Russia
+MBN,Zambia
+3J,Canada
+WZP,Canada
+C4,Cameroon
+IMX,Switzerland
+Z4,Canada
+OOM,Canada
+XW,Russia
+SXR,Russia
+Y0,United States
+RAC,Cambodia
+6T,Burma
+ABL,Republic of Korea
+TB,Brazil
+TUB,Belgium
+BU,American Samoa
+BRA,Norway
+GH,Russia
+GLP,Russia
+9Y,Kazakhstan
+KZK,Kazakhstan
+JD,Japan
+JAS,Japan
+ZQ,United States
+DS,Switzerland
+2I,Peru
+KW,United States
+4H,Bangladesh
+UBD,Bangladesh
+M8,Indonesia
+TMW,Maldives
+5H,Kenya
+FFV,Kenya
+TVF,France
+WP,United States
+MKU,United States
+OG,Ukraine
+B7,Taiwan
+UIA,Taiwan
+YD,Belarus
+WZ,Russia
+RWZ,Russia
+11,Germany
+FU,Yemen
+FXX,Yemen
+K1,Russia
+KOQ,Russia
+XX,Spain
+GFY,Spain
+7J,Tajikistan
+TM,Mozambique
+GBK,Gabon
+MAV,Maldives
+VH,Fiji
+VNP,Fiji
+Z2,Philippines
+ESR,South Korea
+JNA,South Korea
+3O,Morocco
+B1,Latvia
+BA1,Latvia
+YC,Canada
+YCC,Canada
+YCP,Canada
+4AA,United States
+3I,Chile
+DN,Senegal
+L8,Germany
+LBL,Germany
+BKY,United States
+TXP,United States
+IL,United States
+ILW,United States
+SZ,Austria
+TXW,United States
+KT,France
+CWS,United States
+DSY,Israel
+ZZ,Belgium
+A1,United States
+A1F,United States
+UK,India
+CB,Colombia
+RY,Canada
+99,Italy
+VB,United States
+5P,Chile
+C1,Canada
+CA1,Canada
+SHA,Australia
+C2,Canada
+CAP,Canada
+QA,Mexico
+W1,Canada
+WE1,Canada
+3E,United States
+KN,China
+LOC,United States
+4Q,Afghanistan
+SQH,United States
+ILY,United States
+01,Germany
+HCW,Lithuania
+6D,Indonesia
+J5,United States
+T8,Argentina
+MXI,Mexico
+ISX,Iceland
+T0,Peru
+7Q,Dominican Republic
+REP,Paraguay
+V6,Ecuador
+OC,Mauritius
+7Z,Cape Verde
+UJ,Egypt
+LMU,Egypt
+6Y,Latvia
+K7,Egypt
+KBR,Egypt
+GIE,Cameroon
+IMP,Greece
+AAN,Netherlands
+NAK,Niger
+STP,Sao Tome and Principe
+7Y,Lebanon
+SJU,Uganda
+G6,Russia
+RL,Jordan
+RFJ,Jordan
+4L,Georgia
+MJX,Georgia
+WGC,Canada
+ZF,Greece
+VQ,Greece
+VKH,Greece
+DZ,Kazakhstan
+EHM,Portugal
+GDR,Spain
+MNP,Philippines
+OQ,China
+CQN,China
+PN,China
+CHB,China
+QAX,Qatar
+1CH,China
+Y7,Russia
+JOY,China
+9H,India
+Q2,Maldives
+XN,Indonesia
+5E,Thailand
+F8,New Zealand
+IPV,Iran
+EUV,Germany
+BZE,Brazil
+OME,Germany
+WQ,United States
+PQW,United States
+YY,Germany
+VWA,Germany
+KSY,Greece
+BQB,Uruguay
+KOL,Russia
+WU,Ukraine
+WAU,Ukraine
+47,Cyprus
+VVN,Cyprus
+LMM,Russia
+BZL,Brazil
+H3,Canada
+T33,China
+69,United Kingdom
+AZU,Brazil
+LOO,Russia
+LIX,Cameroon
+X1,Saudi Arabia
+FZ,United Arab Emirates
+FDB,United Arab Emirates
+D1,Dominican Republic
+MDO,Dominican Republic
+9A,South Africa
+AXZ,Italy
+YZ,Russia
+YZZ,Russia
+YP,Germany
+AEF,Germany
+UR,Russia
+G5,China
+ZZZ,Russia
+1QA,Russia
+N1,Peru
+4Z,South Africa
+3B,Czech Republic
+OD,Malaysia
+ULA,Venezuela
+BSA,United States
+GER,Germany
+TBZ,Brazil
+THS,Brazil
+9C,China
+NJ,Finland
+TJ,United States
+MKG,Vietnam
+AHO,Germany
+Z6,Russia
+ZTT,Russia
+THI,Brazil
+Y1,United States
+NS,Georgia
+S1,Serbia
+SA1,Serbia
+WM,Netherlands Antilles
+YO,Brazil
+TYS,Brazil
+CCC,Colombia
+F1,Brazil
+FBL,Brazil
+CIF,United Kingdom
+3F,Colombia
+3FF,Colombia
+TP6,United States
+HYM,Nepal
+IG1,India
+ZXY,Japan
+N0,Argentina
+W7,Brazil
+SKV,Canada
+YI,Turkey
+UWW,Russia
+BUU,American Samoa
+L4,Russia
+LJJ,Russia
+7M,Mongolia
+ZTF,Mongolia
+TWB,South Korea
+HI,United States
+JSR,Egypt
+XB,Brazil
+NXB,Brazil
+WER,Russia
+KH,Ukraine
+E1,United States
+ES2,United States
+HNX,South Korea
+HEY,Greece
+4X,Mexico
+MRS,Russia
+7H,United States
+ERR,United States
+RRJ,Russia
+H1,United States
+HA1,United States
+10,Canada
+CNN,Canada
+RSY,Russia
+VKJ,France
+XV,British Virgin Islands
+SLC,Haiti
+ZJ,Zambia
+YQ,Russia
+T1,Brazil
+TP3,Brazil
+12,India
+N12,India
+L6,Mauritania
+MAI,Mauritania
+6F,Macedonia
+MKD,Macedonia
+AWM,Burma
+RBG,Egypt
+OI,Australia
+ORC,Australia
+AWA,Kazakhstan
+XR,Australia
+NP,Egypt
+NIA,Egypt
+SGG,Senegal
+0X,Denmark
+CX0,Denmark
+BCC,Thailand
+YR,United States
+CR7,South Korea
+PP,Pakistan
+AI0,Pakistan
+07,Pakistan
+770,Pakistan
+00,Slovakia
+000,Slovakia
+U1,Russia
+001,Poland
+MM,Japan
+ABI,Russia
+DF,Puerto Rico
+MJG,Puerto Rico
+I5,Indonesia
+IDS,Indonesia
+9P,Malaysia
+B0,United States
+666,United States
+76,United States
+SJS,United States
+77,United States
+ZCS,United States
+78,United States
+XAN,United States
+I2,Spain
+IBS,Spain
+4O,Mexico
+NGB,Finland
+TZ,Singapore
+SCO,Singapore
+STS,Spain
+ZN,Thailand
+ZNA,Thailand
+O1,Azerbaijan
+OAB,Azerbaijan
+P4,United States
+RBY,United States
+5Q,Uruguay
+YE,United States
+YEL,United States
+RAW,United States
+FHI,Ireland
+YH,Burma
+TJA,United States
+VJA,United States
+WL,France
+FQR,France
+24,Germany
+AO1,Slovakia
+R1,Colombia
+RS1,Colombia
+QER,Russia
+MXD,Malaysia
+9F,Netherlands Antilles
+TLM,Netherlands Antilles
+Z9,Tanzania
+I8,Russia
+VA3,France
+M1,United States
+M1F,United States
+7I,Netherlands Antilles
+VVC,Colombia
+ZM,United States
+IWA,United States
+JTO,Hong Kong
+GOD,Netherlands
+DLT,Germany
+NCR,United States
+13,United States
+EAV,United States
+QG,Indonesia
+GU,Italy
+GU1,Italy
+ZYZ,Turks and Caicos Islands
+SBD,Finland
+KHK,Ukraine
+XA,United States
+XAU,United States
+GF5,United States
+XPT,Portugal
+ASL,Serbia
+RN,United States
+RAB,United States
+RAY,Canada
+RPO,United States
+RUE,United Kingdom
+RM,United States
+RNY,United States
+DOB,Russia
+SAL,United States
+AL1,Argentina
+AL2,United States
+AL3,China
+99F,South Africa
+J88,Mexico
+N99,United Kingdom
+N77,Spain
+9N,Iceland
+N78,Iceland
+8K,Brazil
+K88,Brazil
+7KK,Colombia
+2X,Uruguay
+2K2,Uruguay
+9XX,Venezuela
+9J,Chile
+CR1,Chile
+6C,Cuba
+6CC,Cuba
+88,Australia
+8K8,Australia
+RWW,Spain
+FPT,Portugal
+SJO,Japan
+DWA,United States
+DC2,United States
+VI4,Italy
+1X,Canada
+Z0,Argentina
+Z9H,Argentina
+RT,Tonga
+M7A,Argentina
+R1R,Chile
+SAE,Russia
+1Y,Brazil
+A9B,Brazil
+X9,United States
+X9F,Germany
+9V,Costa Rica
+VC9,Costa Rica
+X5,Romania
+OTJ,Romania
+0Y,Colombia
+7ZC,Colombia
+0M,Mexico
+0MM,Mexico
+FOX,Brazil
+QP,Kenya
+CZV,Uruguay
+GTA,Thailand
+NLH,Norway
+TNU,Indonesia
+T9P,Chile
+J1,United States
+0G,Argentina
+GA0,Argentina
+VTI,India
+RGG,Russia
+D2,Russia
+RXR,France
+WEN,Canada
+PPL,India
+INE,Spain
+VAX,Taiwan
+ALS,Japan
+4B,United States
+BTQ,United States
+VOE,Spain
+3X,Chile
+GUI,Chile
+7V,United Kingdom
+ROB,United Kingdom
+Z5,Argentina
+IIR,Argentina
+LE,United States
+LTY,United States
+5B,Cambodia
+BSX,Cambodia
+Q7,Bahamas
+UW,Russia
+3M,United States
+I3,Iran
+V1,Argentina
+VIA,Argentina
+3D,Macedonia
+PMK,Macedonia
+GXG,Germany
+FRF,France
+EU9,France
+DWD,Germany
+K3,United States
+WSS,United States
+SSA,United States
+BG1,Germany
+FI5,Moldova
+0E,France
+0P,Paraguay
+PYB,Paraguay
+2Y,Thailand
+AOW,Thailand
+JG,Australia
+SJM,Russia
