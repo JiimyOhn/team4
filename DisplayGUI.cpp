@@ -1498,6 +1498,7 @@ void __fastcall TForm1::Timer2Timer(TObject *Sender)
 void __fastcall TForm1::PurgeButtonClick(TObject *Sender)
 {
     // 1. Model에게 "모든 항공기 삭제" 작업을 위임
+    m_selectedRoutePaths.clear();
     FAircraftModel->PurgeAllAircraft();
     
     // 2. CycleImages가 체크되어 있으면 FCurrentSpriteImage도 리셋
@@ -2456,28 +2457,27 @@ void __fastcall TForm1::OnAircraftSelected(uint32_t icao)
 {
     // 항공기 객체 찾기
     TADS_B_Aircraft* ac = FAircraftModel->FindAircraftByICAO(icao);
-    if (!ac) {
-        UpdateCloseControlPanel(nullptr, nullptr);
-        return;
-    }
-
-    // **배열을 AnsiString으로 변환한 뒤 처리!**
-    AnsiString flightNum = AnsiString(ac->FlightNum).Trim().UpperCase();
-    auto it = callSignToRoute.find(flightNum.c_str());
-	const RouteInfo* route = (it != callSignToRoute.end()) ? it->second : nullptr;
-
-    // 경로 점들 계산
+    const RouteInfo* route = nullptr;
     m_selectedRoutePaths.clear();
-    if (route && route->airportCodes.size() >= 2) {
-        size_t count = std::min<size_t>(route->airportCodes.size() - 1, 2);
-        for (size_t i = 0; i < count; ++i) {
-            auto it1 = icaoToAirport.find(route->airportCodes[i]);
-            auto it2 = icaoToAirport.find(route->airportCodes[i + 1]);
-			if (it1 != icaoToAirport.end() && it2 != icaoToAirport.end()) {
-                auto segs = BuildRouteSegment(it1->second->latitude, it1->second->longitude,
-                                            it2->second->latitude, it2->second->longitude);
-                for (auto& s : segs)
-                    if (!s.empty()) m_selectedRoutePaths.push_back(std::move(s));
+
+	if (ac){
+        // **배열을 AnsiString으로 변환한 뒤 처리!**
+        AnsiString flightNum = AnsiString(ac->FlightNum).Trim().UpperCase();
+        auto it = callSignToRoute.find(flightNum.c_str());
+        route = (it != callSignToRoute.end()) ? it->second : nullptr;
+
+        // 경로 점들 계산
+        if (route && route->airportCodes.size() >= 2) {
+            size_t count = std::min<size_t>(route->airportCodes.size() - 1, 2);
+            for (size_t i = 0; i < count; ++i) {
+                auto it1 = icaoToAirport.find(route->airportCodes[i]);
+                auto it2 = icaoToAirport.find(route->airportCodes[i + 1]);
+                if (it1 != icaoToAirport.end() && it2 != icaoToAirport.end()) {
+                    auto segs = BuildRouteSegment(it1->second->latitude, it1->second->longitude,
+                                                it2->second->latitude, it2->second->longitude);
+                    for (auto& s : segs)
+                        if (!s.empty()) m_selectedRoutePaths.push_back(std::move(s));
+                }
             }
         }
     }
