@@ -1389,7 +1389,7 @@ object Form1: TForm1
     end
   end
   object Timer1: TTimer
-    Interval = 100
+    Interval = 500
     OnTimer = Timer1Timer
     Left = 88
   end

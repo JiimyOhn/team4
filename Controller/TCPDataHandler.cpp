@@ -65,7 +65,7 @@ void __fastcall TCPDataHandler::TWorkerThread::Execute()
 				{
 					String data = FHandler->FClient->IOHandler->ReadLn();
 					if (!Terminated) {
-						Synchronize([this, data](){ FHandler->SyncNotifyData(data); });
+						TThread::Queue(nullptr, [this, data](){ FHandler->SyncNotifyData(data); });
 					}
 				}
 				retryCount = 0;
@@ -129,7 +129,7 @@ void __fastcall TCPDataHandler::TWorkerThread::Execute()
 				lastTime = currentTime;
 
 				if (!Terminated) {
-					Synchronize([this, msgStr](){ FHandler->SyncNotifyData(msgStr); });
+					TThread::Queue(nullptr, [this, msgStr](){ FHandler->SyncNotifyData(msgStr); });
 				}
 			}
 		}

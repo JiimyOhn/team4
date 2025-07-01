@@ -591,24 +591,26 @@ void __fastcall TForm1::Timer1Timer(TObject *Sender)
  CurrentTime=GetCurrentTimeInMsec();
  SystemTime->Caption=TimeToChar(CurrentTime);
 
- ObjectDisplay->Repaint();
+ObjectDisplay->Repaint();
 }
 //---------------------------------------------------------------------------
-void __fastcall TForm1::DrawObjects(void)
-{
-  double ScrX, ScrY, ScrX2, ScrY2;
-  int    ViewableAircraft=0;
 
-  glEnable( GL_LINE_SMOOTH );
-  glEnable( GL_POINT_SMOOTH );
-  glEnable (GL_BLEND);
-  glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-  glHint (GL_LINE_SMOOTH_HINT, GL_NICEST);
+void TForm1::SetupRenderingState()
+{
+  glEnable(GL_LINE_SMOOTH);
+  glEnable(GL_POINT_SMOOTH);
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
   glLineWidth(3.0);
   glPointSize(4.0);
   glColor4f(1.0, 1.0, 1.0, 1.0);
+}
 
-  LatLon2XY(MapCenterLat,MapCenterLon, ScrX, ScrY);
+void TForm1::DrawMapCenterCross()
+{
+  double ScrX, ScrY;
+  LatLon2XY(MapCenterLat, MapCenterLon, ScrX, ScrY);
 
   glBegin(GL_LINE_STRIP);
   glVertex2f(ScrX-20.0,ScrY);
@@ -619,665 +621,590 @@ void __fastcall TForm1::DrawObjects(void)
   glVertex2f(ScrX,ScrY-20.0);
   glVertex2f(ScrX,ScrY+20.0);
   glEnd();
-
-
-  const void *Key;
-  ght_iterator_t iterator;
-  TADS_B_Aircraft* Data,*DataCPA;
-
-  DWORD i,j,Count;
-
-  if (AreaTemp)
-  {
-   glPointSize(3.0);
-	for (DWORD i = 0; i <AreaTemp->NumPoints ; i++)
-		LatLon2XY(AreaTemp->Points[i][1],AreaTemp->Points[i][0],
-				  AreaTemp->PointsAdj[i][0],AreaTemp->PointsAdj[i][1]);
-
-   glBegin(GL_POINTS);
-   for (DWORD i = 0; i <AreaTemp->NumPoints ; i++)
-	{
-	glVertex2f(AreaTemp->PointsAdj[i][0],
-			   AreaTemp->PointsAdj[i][1]);
-	}
-	glEnd();
-   glBegin(GL_LINE_STRIP);
-   for (DWORD i = 0; i <AreaTemp->NumPoints ; i++)
-	{
-	glVertex2f(AreaTemp->PointsAdj[i][0],
-			   AreaTemp->PointsAdj[i][1]);
-	}
-	glEnd();
-  }
-	Count=Areas->Count;
-	for (i = 0; i < Count; i++)
-	 {
-	   TArea *Area = (TArea *)Areas->Items[i];
-	   TMultiColor MC;
-
-	   MC.Rgb=ColorToRGB(Area->Color);
-	   if (Area->Selected)
-	   {
-		  glLineWidth(4.0);
-		  glPushAttrib (GL_LINE_BIT);
-		  glLineStipple (3, 0xAAAA);
-	   }
-
-
-	   glColor4f(MC.Red/255.0, MC.Green/255.0, MC.Blue/255.0, 1.0);
-	   glBegin(GL_LINE_LOOP);
-	   for (j = 0; j <Area->NumPoints; j++)
-	   {
-		LatLon2XY(Area->Points[j][1],Area->Points[j][0], ScrX, ScrY);
-		glVertex2f(ScrX,ScrY);
-	   }
-	  glEnd();
-	   if (Area->Selected)
-	   {
-		glPopAttrib ();
-		glLineWidth(2.0);
-	   }
-
-	   glColor4f(MC.Red/255.0, MC.Green/255.0, MC.Blue/255.0, 0.4);
-
-	   for (j = 0; j <Area->NumPoints; j++)
-	   {
-		LatLon2XY(Area->Points[j][1],Area->Points[j][0],
-				  Area->PointsAdj[j][0],Area->PointsAdj[j][1]);
-	   }
-	  TTriangles *Tri=Area->Triangles;
-
-	  while(Tri)
-	  {
-		glBegin(GL_TRIANGLES);
-		glVertex2f(Area->PointsAdj[Tri->indexList[0]][0],
-				   Area->PointsAdj[Tri->indexList[0]][1]);
-		glVertex2f(Area->PointsAdj[Tri->indexList[1]][0],
-				   Area->PointsAdj[Tri->indexList[1]][1]);
-		glVertex2f(Area->PointsAdj[Tri->indexList[2]][0],
-				   Area->PointsAdj[Tri->indexList[2]][1]);
-		glEnd();
-		Tri=Tri->next;
-	  }
-	 }
-
-	AircraftCountLabel->Caption= IntToStr(FAircraftModel->GetAircraftCount());
-        m_planeBatch.clear();
-        m_lineBatch.clear();
-        m_textBatch.clear();
-        for(Data = FAircraftModel->GetFirstAircraft(&iterator, &Key);
-                          Data; Data = FAircraftModel->GetNextAircraft(&iterator, &Key))
-        {
-          if (Data->HaveLatLon)
-          {
-            // [1] RouteInfo 얻기
-            //const RouteInfo* route = FindRouteByCallsign(AnsiString(Data->FlightNum).c_str());
-
-            const RouteInfo* route = nullptr;
-            if (!filterAirline.IsEmpty() || !filterOrigin.IsEmpty() || !filterDestination.IsEmpty()) {
-                auto it = callSignToRoute.find(AnsiString(Data->FlightNum).c_str());
-                route = (it != callSignToRoute.end()) ? it->second : nullptr;
-                // (필터가 한 개라도 있을 때만 route lookup)
-                if (!IsRouteMatched(route)) continue;
-            }
-
-            // ① [추가] 필터가 지정된 경우에만 route==nullptr 항공기를 스킵
-            if ((!filterAirline.IsEmpty() || !filterOrigin.IsEmpty() || !filterDestination.IsEmpty()) && route == nullptr)
-                continue;
-
-            // [2] 항공사 필터
-            if (!filterAirline.IsEmpty() && route) {
-                AnsiString code = AnsiString(route->airlineCode.c_str()).UpperCase();
-				AnsiString filter = filterAirline.UpperCase();
-				if (code.SubString(1, filter.Length()) != filter)
-					continue;
-            }
-
-            // [3] 출발지 필터 (route->airportCodes[0]이 출발지)
-            if (!filterOrigin.IsEmpty() && route && !route->airportCodes.empty()) {
-                AnsiString origin = AnsiString(route->airportCodes.front().c_str()).UpperCase();
-                if (AnsiString(route->airportCodes.front().c_str()).UpperCase() != filterOrigin.UpperCase())
-                    continue;
-            }
-
-            // [4] 도착지 필터 (route->airportCodes.back()이 도착지)
-            if (!filterDestination.IsEmpty() && route && !route->airportCodes.empty()) {
-                if (AnsiString(route->airportCodes.back().c_str()).UpperCase() != filterDestination.UpperCase())
-                    continue;
-            }
-
-            // [속도/고도 필터] - TrackBar 값에 따른 필터링
-            int minSpeed = SpeedMinTrackBar->Position;
-            int maxSpeed = SpeedMaxTrackBar->Position;
-            int minAlt = AltitudeMinTrackBar->Position;
-            int maxAlt = AltitudeMaxTrackBar->Position;
-            
-            // 속도 필터 체크
-            if (Data->HaveSpeedAndHeading) {
-                if (Data->Speed < minSpeed || Data->Speed > maxSpeed) {
-                    continue; // 속도 범위를 벗어나면 스킵
-                }
-            }
-            
-            // 고도 필터 체크
-            if (Data->HaveAltitude) {
-                if (Data->Altitude < minAlt || Data->Altitude > maxAlt) {
-                    continue; // 고도 범위를 벗어나면 스킵
-                }
-            }
-
-            // [5] 다각형 내 비행기만 표시하는 필터
-            if (filterPolygonOnly && Areas->Count > 0) {
-                bool inAnyPolygon = false;
-                pfVec3 aircraftPoint;
-                aircraftPoint[0] = Data->Longitude; // 경도
-                aircraftPoint[1] = Data->Latitude;  // 위도
-                aircraftPoint[2] = 0.0;
-
-                // 현재 위치가 다각형 안에 있는지 확인
-                for (DWORD i = 0; i < Areas->Count; i++) {
-                    TArea *Area = (TArea *)Areas->Items[i];
-                    if (PointInPolygon(Area->Points, Area->NumPoints, aircraftPoint)) {
-                        inAnyPolygon = true;
-                        break;
-                    }
-                }
-
-                // 현재 위치가 다각형 밖에 있다면, 미래 위치도 확인
-                if (!inAnyPolygon && Data->HaveSpeedAndHeading) {
-                    // 미래 위치 계산 (5분, 10분, 15분 후)
-                    const double timeIntervals[] = {5.0, 10.0, 15.0}; // 분 단위
-                    const int numIntervals = sizeof(timeIntervals) / sizeof(timeIntervals[0]);
-                    
-                    for (int t = 0; t < numIntervals && !inAnyPolygon; t++) {
-                        double futureLat, futureLon, junk;
-                        double timeInHours = timeIntervals[t] / 60.0; // 시간 단위로 변환
-                        
-                        // VDirect 함수를 사용하여 미래 위치 계산
-                        if (VDirect(Data->Latitude, Data->Longitude, 
-                                   Data->Heading, Data->Speed * timeInHours, 
-                                   &futureLat, &futureLon, &junk) == OKNOERROR) {
-                            
-                            pfVec3 futurePoint;
-                            futurePoint[0] = futureLon; // 경도
-                            futurePoint[1] = futureLat; // 위도
-                            futurePoint[2] = 0.0;
-                            
-                            // 미래 위치가 다각형 안에 있는지 확인
-                            for (DWORD i = 0; i < Areas->Count; i++) {
-                                TArea *Area = (TArea *)Areas->Items[i];
-                                if (PointInPolygon(Area->Points, Area->NumPoints, futurePoint)) {
-                                    inAnyPolygon = true;
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                }
-                
-                // 현재나 미래 위치가 어떤 다각형에도 포함되지 않으면 스킵
-                if (!inAnyPolygon) {
-                    continue;
-                }
-            }
-
-            // [6] 정의된 경유지 내 비행기만 표시하는 필터
-            if (filterWaypointsOnly && route && !route->airportCodes.empty()) {
-                bool inWaypointArea = false;
-                pfVec3 aircraftPoint;
-                aircraftPoint[0] = Data->Longitude; // 경도
-                aircraftPoint[1] = Data->Latitude;  // 위도
-                aircraftPoint[2] = 0.0;
-
-                // 현재 위치가 경유지 영역에 있는지 확인
-                for (size_t i = 0; i < route->airportCodes.size() - 1; i++) {
-                    const AirportInfo* ap1 = nullptr;
-                    const AirportInfo* ap2 = nullptr;
-                    
-                    // 두 연속된 공항 정보 찾기
-                    auto it1 = icaoToAirport.find(route->airportCodes[i]);
-                    auto it2 = icaoToAirport.find(route->airportCodes[i + 1]);
-                    
-                    if (it1 != icaoToAirport.end()) ap1 = it1->second;
-                    if (it2 != icaoToAirport.end()) ap2 = it2->second;
-                    
-                    if (ap1 && ap2) {
-                        // 두 공항 사이의 직선 경로 근처에 있는지 확인
-                        double lat1 = ap1->latitude, lon1 = ap1->longitude;
-                        double lat2 = ap2->latitude, lon2 = ap2->longitude;
-                        double aircraftLat = Data->Latitude, aircraftLon = Data->Longitude;
-                        
-                        // 두 공항 사이의 중점
-                        double midLat = (lat1 + lat2) / 2.0;
-                        double midLon = (lon1 + lon2) / 2.0;
-                        
-                        // 중점에서 비행기까지의 거리
-                        double distToMid = sqrt(pow(aircraftLat - midLat, 2) + pow(aircraftLon - midLon, 2));
-                        
-                        // 두 공항 사이의 거리
-                        double routeDist = sqrt(pow(lat2 - lat1, 2) + pow(lon2 - lon1, 2));
-                        
-                        // 경로 거리의 1/3 이내에 있으면 경유지 영역으로 간주
-                        if (distToMid <= routeDist / 3.0) {
-                            inWaypointArea = true;
-                            break;
-                        }
-                    }
-                }
-
-                // 현재 위치가 경유지 영역 밖에 있다면, 미래 위치도 확인
-                if (!inWaypointArea && Data->HaveSpeedAndHeading) {
-                    // 미래 위치 계산 (5분, 10분, 15분 후)
-                    const double timeIntervals[] = {5.0, 10.0, 15.0}; // 분 단위
-                    const int numIntervals = sizeof(timeIntervals) / sizeof(timeIntervals[0]);
-                    
-                    for (int t = 0; t < numIntervals && !inWaypointArea; t++) {
-                        double futureLat, futureLon, junk;
-                        double timeInHours = timeIntervals[t] / 60.0; // 시간 단위로 변환
-                        
-                        // VDirect 함수를 사용하여 미래 위치 계산
-                        if (VDirect(Data->Latitude, Data->Longitude, 
-                                   Data->Heading, Data->Speed * timeInHours, 
-                                   &futureLat, &futureLon, &junk) == OKNOERROR) {
-                            
-                            // 미래 위치가 경유지 영역에 있는지 확인
-                            for (size_t i = 0; i < route->airportCodes.size() - 1; i++) {
-                                const AirportInfo* ap1 = nullptr;
-                                const AirportInfo* ap2 = nullptr;
-                                
-                                auto it1 = icaoToAirport.find(route->airportCodes[i]);
-                                auto it2 = icaoToAirport.find(route->airportCodes[i + 1]);
-                                
-                                if (it1 != icaoToAirport.end()) ap1 = it1->second;
-                                if (it2 != icaoToAirport.end()) ap2 = it2->second;
-                                
-                                if (ap1 && ap2) {
-                                    double lat1 = ap1->latitude, lon1 = ap1->longitude;
-                                    double lat2 = ap2->latitude, lon2 = ap2->longitude;
-                                    
-                                    // 두 공항 사이의 중점
-                                    double midLat = (lat1 + lat2) / 2.0;
-                                    double midLon = (lon1 + lon2) / 2.0;
-                                    
-                                    // 중점에서 미래 위치까지의 거리
-                                    double distToMid = sqrt(pow(futureLat - midLat, 2) + pow(futureLon - midLon, 2));
-                                    
-                                    // 두 공항 사이의 거리
-                                    double routeDist = sqrt(pow(lat2 - lat1, 2) + pow(lon2 - lon1, 2));
-                                    
-                                    // 경로 거리의 1/3 이내에 있으면 경유지 영역으로 간주
-                                    if (distToMid <= routeDist / 3.0) {
-                                        inWaypointArea = true;
-                                        break;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-                
-                // 현재나 미래 위치가 경유지 영역에 포함되지 않으면 스킵
-                if (!inWaypointArea) {
-                    continue;
-                }
-            }
-
-            // 항공기 카테고리 필터 적용
-            AircraftCategory category = aircraft_get_category(Data->ICAO);
-            bool showAircraft = false;
-            
-            switch(category) {
-                case CATEGORY_COMMERCIAL:
-                    showAircraft = CommercialCheckBox->Checked;
-                    break;
-                case CATEGORY_CARGO:
-                    showAircraft = CargoCheckBox->Checked;
-                    break;
-                case CATEGORY_HELICOPTER:
-                    showAircraft = HelicopterCheckBox->Checked;
-                    break;
-                case CATEGORY_MILITARY:
-                    showAircraft = MilitaryCheckBox->Checked;
-                    break;
-                case CATEGORY_BUSINESS_JET:
-                    showAircraft = BusinessJetCheckBox->Checked;
-                    break;
-                case CATEGORY_GLIDER:
-                    showAircraft = GliderCheckBox->Checked;
-                    break;
-                case CATEGORY_ULTRALIGHT:
-                    showAircraft = UltralightCheckBox->Checked;
-                    break;
-                case CATEGORY_GENERAL_AVIATION:
-                case CATEGORY_UNKNOWN:
-                default:
-                    showAircraft = GeneralAviationCheckBox->Checked;
-                    break;
-            }
-            
-            if (!showAircraft) {
-                continue;
-            }
-
-            ViewableAircraft++;
-
-           LatLon2XY(Data->Latitude,Data->Longitude, ScrX, ScrY);
-           ScrX2 = ScrX;
-           ScrY2 = ScrY;
-           //DrawPoint(ScrX,ScrY);
-           float color[4] = {1.0f, 1.0f, 1.0f, 1.0f}; // 기본 흰색
-           bool isPartOfSelectedPair = (Data->ICAO == FSelectedConflictPair.first || Data->ICAO == FSelectedConflictPair.second);
-           
-           // 항공기 타입에 따른 색상 설정
-           if (aircraft_is_helicopter(Data->ICAO, NULL)) {
-               color[0] = 0.0f; color[1] = 1.0f; color[2] = 0.0f; // 헬리콥터: 녹색
-           } else if (aircraft_is_military(Data->ICAO, NULL)) {
-               color[0] = 1.0f; color[1] = 0.0f; color[2] = 0.0f; // 군용기: 빨간색
-           } else {
-               color[0] = 1.0f; color[1] = 1.0f; color[2] = 1.0f; // 민간기: 흰색
-           }
-           
-           if (Data->HaveSpeedAndHeading)
-           {
-                 // 속도와 방향이 있는 경우 보라색으로 강조
-                 color[0]=1.0f; color[1]=0.0f; color[2]=1.0f; color[3]=1.0f;
-				 if (TimeToGoCheckBox->State==cbChecked)
-				 {
-					double lat2,lon2,az2;
-					VDirect(Data->Latitude,Data->Longitude,
-							Data->Heading,Data->Speed*(double)TimeToGoTrackBar->Position/3600.0,&lat2,&lon2,&az2);
-					LatLon2XY(lat2,lon2, ScrX2, ScrY2);
-					}
-			}
-			else
-				{
-					Data->Heading=0.0;
-					// 속도와 방향이 없는 경우 빨간색으로 표시
-					color[0]=1.0f; color[1]=0.0f; color[2]=0.0f; color[3]=1.0f;
-				}
-
-      if (isPartOfSelectedPair) {
-        color[0] = 0.0f; color[1] = 1.0f; color[2] = 1.0f; // 밝은 청록색(Cyan)
-      } else if (FConflictMap.count(Data->ICAO)) {
-        color[0] = 0.0f; color[1] = 0.0f; color[2] = 1.0f;
-      }
-
-				AirplaneInstance inst;
-				inst.x = ScrX;
-				inst.y = ScrY;
-				inst.scale = 1.5f; // 기본 크기
-				
-				// 고도에 따른 크기 조정
-				if (Data->HaveAltitude) {
-					if (Data->Altitude > 30000) {
-						inst.scale = 1.0f; // 고고도는 작게 (멀리 있어서)
-					} else if (Data->Altitude < 10000) {
-						inst.scale = 2.0f; // 저고도는 크게 (가까이 있어서)
-					} else {
-						inst.scale = 1.5f; // 중간 고도는 기본 크기
-					}
-				}
-				
-				inst.heading = Data->Heading;
-				inst.imageNum = SelectAircraftIcon(Data);
-				inst.color[0] = color[0];
-				inst.color[1] = color[1];
-				inst.color[2] = color[2];
-				inst.color[3] = color[3];
-				m_planeBatch.push_back(inst);
-
-				AirplaneLineInstance line;
-				line.x1 = ScrX;
-				line.y1 = ScrY;
-				line.x2 = ScrX2;
-				line.y2 = ScrY2;
-				m_lineBatch.push_back(line);
-
-				for(int i=0; i<6 && Data->HexAddr[i]; ++i){
-					HexCharInstance tc;
-					tc.x = ScrX + 40 + i * (HEX_FONT_WIDTH - 15) * GetHexTextScale();
-					tc.y = ScrY - 10;
-					char c = Data->HexAddr[i];
-					if(c >= '0' && c <= '9') tc.glyph = c - '0';
-					else if(c >= 'A' && c <= 'F') tc.glyph = 10 + (c - 'A');
-					else tc.glyph = 0;
-					tc.color[0] = color[0];
-					tc.color[1] = color[1];
-					tc.color[2] = color[2];
-					tc.color[3] = color[3];
-					m_textBatch.push_back(tc);
-				}
-        }
-	   }
-               // 기존 배치 렌더링 대신 개별 스타일 적용
-               for (const auto& line : m_lineBatch) {
-                   // 항공기 타입에 따른 다른 리더 스타일 적용
-                   TADS_B_Aircraft* aircraft = FAircraftModel->FindAircraftByICAO(TrackHook.ICAO_CC);
-                   if (aircraft && aircraft_is_military(aircraft->ICAO, NULL)) {
-                       // 군용기는 두꺼운 선
-                       DrawLeaderThick(line.x1, line.y1, line.x2, line.y2, 4.0f);
-                   } else if (aircraft && aircraft_is_helicopter(aircraft->ICAO, NULL)) {
-                       // 헬리콥터는 점선
-                       DrawLeaderDashed(line.x1, line.y1, line.x2, line.y2);
-                   } else {
-                       // 일반 항공기는 화살표
-                       DrawLeaderArrow(line.x1, line.y1, line.x2, line.y2, 8.0f);
-                   }
-               }
-               
-               // 기존 배치 렌더링 (백업용)
-               // DrawAirplaneLinesInstanced(m_lineBatch);
-               DrawAirplaneImagesInstanced(m_planeBatch);
-               DrawHexTextInstanced(m_textBatch);
-
- ViewableAircraftCountLabel->Caption=ViewableAircraft;
- if (TrackHook.Valid_CC)
- {
-		Data= FAircraftModel->FindAircraftByICAO(TrackHook.ICAO_CC);
-		if (Data)
-		{
-		ICAOLabel->Caption=Data->HexAddr;
-        if (Data->HaveFlightNum)
-          FlightNumLabel->Caption=Data->FlightNum;
-        else FlightNumLabel->Caption="N/A";
-        {
-         std::string airline, country;
-         if (LookupAirline(AnsiString(Data->FlightNum).Trim().UpperCase().c_str(), airline, country))
-         {
-             AirlineNameLabel->Caption = airline.c_str();
-             AirlineCountryLabel->Caption = country.c_str();
-         }
-         else
-         {
-             AirlineNameLabel->Caption = "N/A";
-             AirlineCountryLabel->Caption = "N/A";
-         }
-        }
-        if (Data->HaveLatLon)
-                {
-		 CLatLabel->Caption=DMS::DegreesMinutesSecondsLat(Data->Latitude).c_str();
-		 CLonLabel->Caption=DMS::DegreesMinutesSecondsLon(Data->Longitude).c_str();
-        }
-        else
-        {
-         CLatLabel->Caption="N/A";
-		 CLonLabel->Caption="N/A";
-        }
-        if (Data->HaveSpeedAndHeading)
-        {
-		 SpdLabel->Caption=FloatToStrF(Data->Speed, ffFixed,12,2)+" KTS  VRATE:"+FloatToStrF(Data->VerticalRate,ffFixed,12,2);
-		 HdgLabel->Caption=FloatToStrF(Data->Heading, ffFixed,12,2)+" DEG";
-        }
-        else
-        {
- 		 SpdLabel->Caption="N/A";
-		 HdgLabel->Caption="N/A";
-        }
-        if (Data->Altitude)
-		 AltLabel->Caption= FloatToStrF(Data->Altitude, ffFixed,12,2)+" FT";
-		else AltLabel->Caption="N/A";
-
-		MsgCntLabel->Caption="Raw: "+IntToStr((int)Data->NumMessagesRaw)+" SBS: "+IntToStr((int)Data->NumMessagesSBS);
-		TrkLastUpdateTimeLabel->Caption=TimeToChar(Data->LastSeen);
-
-        glColor4f(1.0, 0.0, 0.0, 1.0);
-        LatLon2XY(Data->Latitude,Data->Longitude, ScrX, ScrY);
-        DrawTrackHook(ScrX, ScrY);
-        }
-
-		else
-        {
-		 TrackHook.Valid_CC=false;
-		 ICAOLabel->Caption="N/A";
-                FlightNumLabel->Caption="N/A";
-                AircraftModelLabel->Caption="N/A";
-                AirlineNameLabel->Caption="N/A";
-                AirlineCountryLabel->Caption="N/A";
-        CLatLabel->Caption="N/A";
-                CLonLabel->Caption="N/A";
-         SpdLabel->Caption="N/A";
-		 HdgLabel->Caption="N/A";
-		 AltLabel->Caption="N/A";
-		 MsgCntLabel->Caption="N/A";
-         TrkLastUpdateTimeLabel->Caption="N/A";
-        }
- }
- if (TrackHook.Valid_CPA)
- {
-  bool CpaDataIsValid=false;
-  DataCPA= FAircraftModel->FindAircraftByICAO(TrackHook.ICAO_CPA);
-  if ((DataCPA) && (TrackHook.Valid_CC))
-	{
-
-	  double tcpa,cpa_distance_nm, vertical_cpa;
-	  double lat1, lon1,lat2, lon2, junk;
-	  if (computeCPA(Data->Latitude, Data->Longitude, Data->Altitude,
-					 Data->Speed,Data->Heading,
-					 DataCPA->Latitude, DataCPA->Longitude, DataCPA->Altitude,
-					 DataCPA->Speed,DataCPA->Heading,
-					 tcpa,cpa_distance_nm, vertical_cpa))
-	  {
-		if (VDirect(Data->Latitude,Data->Longitude,
-					Data->Heading,Data->Speed/3600.0*tcpa,&lat1,&lon1,&junk)==OKNOERROR)
-		{
-		  if (VDirect(DataCPA->Latitude,DataCPA->Longitude,
-					  DataCPA->Heading,DataCPA->Speed/3600.0*tcpa,&lat2,&lon2,&junk)==OKNOERROR)
-		   {
-			 glColor4f(0.0, 1.0, 0.0, 1.0);
-			 glBegin(GL_LINE_STRIP);
-			 LatLon2XY(Data->Latitude,Data->Longitude, ScrX, ScrY);
-			 glVertex2f(ScrX, ScrY);
-			 LatLon2XY(lat1,lon1, ScrX, ScrY);
-			 glVertex2f(ScrX, ScrY);
-			 glEnd();
-			 glBegin(GL_LINE_STRIP);
-			 LatLon2XY(DataCPA->Latitude,DataCPA->Longitude, ScrX, ScrY);
-			 glVertex2f(ScrX, ScrY);
-			 LatLon2XY(lat2,lon2, ScrX, ScrY);
-			 glVertex2f(ScrX, ScrY);
-			 glEnd();
-			 glColor4f(1.0, 0.0, 0.0, 1.0);
-			 glBegin(GL_LINE_STRIP);
-			 LatLon2XY(lat1,lon1, ScrX, ScrY);
-			 glVertex2f(ScrX, ScrY);
-			 LatLon2XY(lat2,lon2, ScrX, ScrY);
-			 glVertex2f(ScrX, ScrY);
-			 glEnd();
-			 CpaTimeValue->Caption=TimeToChar(tcpa*1000);
-			 CpaDistanceValue->Caption= FloatToStrF(cpa_distance_nm, ffFixed,10,2)+" NM VDIST: "+IntToStr((int)vertical_cpa)+" FT";
-			 CpaDataIsValid=true;
-		   }
-		}
-	  }
-	}
-  if (!CpaDataIsValid)
-  {
-       TrackHook.Valid_CPA=false;
-       CpaTimeValue->Caption="None";
-       CpaDistanceValue->Caption="None";
-  }
 }
- if (!m_selectedRoutePaths.empty())
- {
-   glLineWidth(2.0f);
-   glColor4f(1.0f, 1.0f, 0.0f, 1.0f);
-   for (const auto& seg : m_selectedRoutePaths)
-   {
-       if (seg.size() < 2) continue;
-       double px = 0, py = 0;
-       glBegin(GL_LINE_STRIP);
-       for (size_t i = 0; i < seg.size(); ++i)
-       {
-           double x,y;
-           LatLon2XY(seg[i].first, seg[i].second, x, y);
-           glVertex2f(x, y);
-           if (i == seg.size() - 2) { px = x; py = y; }
-       }
-       glEnd();
-       double xe, ye;
-       LatLon2XY(seg.back().first, seg.back().second, xe, ye);
-       DrawLeaderArrow(px, py, xe, ye, 10.0f);
-   }
-   glLineWidth(1.0f);
- }
- if (FSelectedConflictPair.first != 0)
+
+void TForm1::DrawTemporaryArea()
+{
+  if (!AreaTemp) return;
+  glPointSize(3.0);
+  for (DWORD i = 0; i < AreaTemp->NumPoints; i++)
+    LatLon2XY(AreaTemp->Points[i][1], AreaTemp->Points[i][0],
+              AreaTemp->PointsAdj[i][0], AreaTemp->PointsAdj[i][1]);
+
+  glBegin(GL_POINTS);
+  for (DWORD i = 0; i < AreaTemp->NumPoints; i++)
+    glVertex2f(AreaTemp->PointsAdj[i][0], AreaTemp->PointsAdj[i][1]);
+  glEnd();
+  glBegin(GL_LINE_STRIP);
+  for (DWORD i = 0; i < AreaTemp->NumPoints; i++)
+    glVertex2f(AreaTemp->PointsAdj[i][0], AreaTemp->PointsAdj[i][1]);
+  glEnd();
+}
+
+void TForm1::DrawDefinedAreas()
+{
+  DWORD Count = Areas->Count;
+  for (DWORD i = 0; i < Count; i++)
   {
-    TADS_B_Aircraft* ac1 = FAircraftModel->FindAircraftByICAO(FSelectedConflictPair.first);
-    TADS_B_Aircraft* ac2 = FAircraftModel->FindAircraftByICAO(FSelectedConflictPair.second);
-
-    if (ac1 && ac2 && ac1->HaveLatLon && ac2->HaveLatLon)
+    TArea *Area = (TArea *)Areas->Items[i];
+    TMultiColor MC;
+    MC.Rgb = ColorToRGB(Area->Color);
+    if (Area->Selected)
     {
-      double tcpa = 0;
-      double cpa_distance_nm = 0;
+      glLineWidth(4.0);
+      glPushAttrib(GL_LINE_BIT);
+      glLineStipple(3, 0xAAAA);
+    }
 
-      // 1. 선택된 쌍의 CPA 정보 찾기
-      bool found = false;
-      if (FConflictMap.count(ac1->ICAO)) {
-        for (const auto& info : FConflictMap.at(ac1->ICAO)) {
-          if (info.otherAircraftICAO == ac2->ICAO) {
-              tcpa = info.timeToCPA;
-              cpa_distance_nm = info.cpaDistance;
-              found = true;
-              break;
-          }
-        }
-      }
+    glColor4f(MC.Red/255.0, MC.Green/255.0, MC.Blue/255.0, 1.0);
+    glBegin(GL_LINE_LOOP);
+    for (DWORD j = 0; j < Area->NumPoints; j++)
+    {
+      double x,y;
+      LatLon2XY(Area->Points[j][1], Area->Points[j][0], x, y);
+      glVertex2f(x, y);
+    }
+    glEnd();
+    if (Area->Selected)
+    {
+      glPopAttrib();
+      glLineWidth(2.0);
+    }
 
-      if (found)
-      {
-        double lat1, lon1, lat2, lon2, junk;
-
-        // 2. 각 항공기의 미래 위치 계산
-        VDirect(ac1->Latitude, ac1->Longitude, ac1->Heading, ac1->Speed / 3600.0 * tcpa, &lat1, &lon1, &junk);
-        VDirect(ac2->Latitude, ac2->Longitude, ac2->Heading, ac2->Speed / 3600.0 * tcpa, &lat2, &lon2, &junk);
-
-        // 3. 예측 경로(녹색 선) 그리기
-        double x1_curr, y1_curr, x1_fut, y1_fut;
-        double x2_curr, y2_curr, x2_fut, y2_fut;
-        LatLon2XY(ac1->Latitude, ac1->Longitude, x1_curr, y1_curr);
-        LatLon2XY(lat1, lon1, x1_fut, y1_fut);
-        LatLon2XY(ac2->Latitude, ac2->Longitude, x2_curr, y2_curr);
-        LatLon2XY(lat2, lon2, x2_fut, y2_fut);
-
-        glLineWidth(3.0);
-        glColor4f(0.0, 1.0, 0.0, 0.6); // 반투명 녹색
-        glBegin(GL_LINES);
-        glVertex2d(x1_curr, y1_curr); glVertex2d(x1_fut, y1_fut);
-        glVertex2d(x2_curr, y2_curr); glVertex2d(x2_fut, y2_fut);
-        glEnd();
-
-        // 4. CPA 지점 사이를 잇는 빨간 선 그리기
-        glLineWidth(5.0);
-        glColor4f(1.0, 0.0, 0.0, 0.8); // 반투명 빨간색
-        glBegin(GL_LINES);
-        glVertex2d(x1_fut, y1_fut);
-        glVertex2d(x2_fut, y2_fut);
-        glEnd();
-      }
+    glColor4f(MC.Red/255.0, MC.Green/255.0, MC.Blue/255.0, 0.4);
+    for (DWORD j = 0; j < Area->NumPoints; j++)
+      LatLon2XY(Area->Points[j][1], Area->Points[j][0],
+                Area->PointsAdj[j][0], Area->PointsAdj[j][1]);
+    TTriangles *Tri = Area->Triangles;
+    while (Tri)
+    {
+      glBegin(GL_TRIANGLES);
+      glVertex2f(Area->PointsAdj[Tri->indexList[0]][0], Area->PointsAdj[Tri->indexList[0]][1]);
+      glVertex2f(Area->PointsAdj[Tri->indexList[1]][0], Area->PointsAdj[Tri->indexList[1]][1]);
+      glVertex2f(Area->PointsAdj[Tri->indexList[2]][0], Area->PointsAdj[Tri->indexList[2]][1]);
+      glEnd();
+      Tri = Tri->next;
     }
   }
 }
 
+bool TForm1::ShouldDisplayAircraft(TADS_B_Aircraft* Data, const RouteInfo* route)
+{
+  if ((!filterAirline.IsEmpty() || !filterOrigin.IsEmpty() || !filterDestination.IsEmpty()) && route == nullptr)
+    return false;
+
+  if (!filterAirline.IsEmpty() && route)
+  {
+    AnsiString code = AnsiString(route->airlineCode.c_str()).UpperCase();
+    AnsiString filter = filterAirline.UpperCase();
+    if (code.SubString(1, filter.Length()) != filter)
+      return false;
+  }
+
+  if (!filterOrigin.IsEmpty() && route && !route->airportCodes.empty())
+  {
+    if (AnsiString(route->airportCodes.front().c_str()).UpperCase() != filterOrigin.UpperCase())
+      return false;
+  }
+
+  if (!filterDestination.IsEmpty() && route && !route->airportCodes.empty())
+  {
+    if (AnsiString(route->airportCodes.back().c_str()).UpperCase() != filterDestination.UpperCase())
+      return false;
+  }
+
+  int minSpeed = SpeedMinTrackBar->Position;
+  int maxSpeed = SpeedMaxTrackBar->Position;
+  int minAlt = AltitudeMinTrackBar->Position;
+  int maxAlt = AltitudeMaxTrackBar->Position;
+
+  if (Data->HaveSpeedAndHeading)
+    if (Data->Speed < minSpeed || Data->Speed > maxSpeed)
+      return false;
+
+  if (Data->HaveAltitude)
+    if (Data->Altitude < minAlt || Data->Altitude > maxAlt)
+      return false;
+
+  if (filterPolygonOnly && Areas->Count > 0)
+  {
+    bool inAnyPolygon = false;
+    pfVec3 aircraftPoint;
+    aircraftPoint[0] = Data->Longitude;
+    aircraftPoint[1] = Data->Latitude;
+    aircraftPoint[2] = 0.0;
+
+    for (DWORD i = 0; i < Areas->Count; i++)
+    {
+      TArea *Area = (TArea *)Areas->Items[i];
+      if (PointInPolygon(Area->Points, Area->NumPoints, aircraftPoint))
+      {
+        inAnyPolygon = true;
+        break;
+      }
+    }
+
+    if (!inAnyPolygon && Data->HaveSpeedAndHeading)
+    {
+      const double timeIntervals[] = {5.0, 10.0, 15.0};
+      const int numIntervals = sizeof(timeIntervals) / sizeof(timeIntervals[0]);
+      for (int t = 0; t < numIntervals && !inAnyPolygon; t++)
+      {
+        double futureLat, futureLon, junk;
+        double timeInHours = timeIntervals[t] / 60.0;
+        if (VDirect(Data->Latitude, Data->Longitude,
+                   Data->Heading, Data->Speed * timeInHours,
+                   &futureLat, &futureLon, &junk) == OKNOERROR)
+        {
+          pfVec3 futurePoint;
+          futurePoint[0] = futureLon;
+          futurePoint[1] = futureLat;
+          futurePoint[2] = 0.0;
+          for (DWORD i = 0; i < Areas->Count; i++)
+          {
+            TArea *Area = (TArea *)Areas->Items[i];
+            if (PointInPolygon(Area->Points, Area->NumPoints, futurePoint))
+            {
+              inAnyPolygon = true;
+              break;
+            }
+          }
+        }
+      }
+    }
+    if (!inAnyPolygon)
+      return false;
+  }
+
+  if (filterWaypointsOnly && route && !route->airportCodes.empty())
+  {
+    bool inWaypointArea = false;
+    pfVec3 aircraftPoint;
+    aircraftPoint[0] = Data->Longitude;
+    aircraftPoint[1] = Data->Latitude;
+    aircraftPoint[2] = 0.0;
+
+    for (size_t i = 0; i < route->airportCodes.size() - 1 && !inWaypointArea; i++)
+    {
+      const AirportInfo* ap1 = nullptr;
+      const AirportInfo* ap2 = nullptr;
+      auto it1 = icaoToAirport.find(route->airportCodes[i]);
+      auto it2 = icaoToAirport.find(route->airportCodes[i + 1]);
+      if (it1 != icaoToAirport.end()) ap1 = it1->second;
+      if (it2 != icaoToAirport.end()) ap2 = it2->second;
+      if (ap1 && ap2)
+      {
+        double lat1 = ap1->latitude, lon1 = ap1->longitude;
+        double lat2 = ap2->latitude, lon2 = ap2->longitude;
+        double midLat = (lat1 + lat2) / 2.0;
+        double midLon = (lon1 + lon2) / 2.0;
+        double distToMid = sqrt(pow(aircraftPoint[1] - midLat, 2) + pow(aircraftPoint[0] - midLon, 2));
+        double routeDist = sqrt(pow(lat2 - lat1, 2) + pow(lon2 - lon1, 2));
+        if (distToMid <= routeDist / 3.0)
+        {
+          inWaypointArea = true;
+          break;
+        }
+      }
+    }
+
+    if (!inWaypointArea && Data->HaveSpeedAndHeading)
+    {
+      const double timeIntervals[] = {5.0, 10.0, 15.0};
+      const int numIntervals = sizeof(timeIntervals) / sizeof(timeIntervals[0]);
+      for (int t = 0; t < numIntervals && !inWaypointArea; t++)
+      {
+        double futureLat, futureLon, junk;
+        double timeInHours = timeIntervals[t] / 60.0;
+        if (VDirect(Data->Latitude, Data->Longitude,
+                   Data->Heading, Data->Speed * timeInHours,
+                   &futureLat, &futureLon, &junk) == OKNOERROR)
+        {
+          for (size_t i = 0; i < route->airportCodes.size() - 1; i++)
+          {
+            const AirportInfo* ap1 = nullptr;
+            const AirportInfo* ap2 = nullptr;
+            auto it1 = icaoToAirport.find(route->airportCodes[i]);
+            auto it2 = icaoToAirport.find(route->airportCodes[i + 1]);
+            if (it1 != icaoToAirport.end()) ap1 = it1->second;
+            if (it2 != icaoToAirport.end()) ap2 = it2->second;
+            if (ap1 && ap2)
+            {
+              double lat1 = ap1->latitude, lon1 = ap1->longitude;
+              double lat2 = ap2->latitude, lon2 = ap2->longitude;
+              double midLat = (lat1 + lat2) / 2.0;
+              double midLon = (lon1 + lon2) / 2.0;
+              double distToMid = sqrt(pow(futureLat - midLat, 2) + pow(futureLon - midLon, 2));
+              double routeDist = sqrt(pow(lat2 - lat1, 2) + pow(lon2 - lon1, 2));
+              if (distToMid <= routeDist / 3.0)
+              {
+                inWaypointArea = true;
+                break;
+              }
+            }
+          }
+        }
+      }
+    }
+
+    if (!inWaypointArea)
+      return false;
+  }
+
+  AircraftCategory category = aircraft_get_category(Data->ICAO);
+  bool showAircraft = false;
+  switch(category)
+  {
+    case CATEGORY_COMMERCIAL: showAircraft = CommercialCheckBox->Checked; break;
+    case CATEGORY_CARGO: showAircraft = CargoCheckBox->Checked; break;
+    case CATEGORY_HELICOPTER: showAircraft = HelicopterCheckBox->Checked; break;
+    case CATEGORY_MILITARY: showAircraft = MilitaryCheckBox->Checked; break;
+    case CATEGORY_BUSINESS_JET: showAircraft = BusinessJetCheckBox->Checked; break;
+    case CATEGORY_GLIDER: showAircraft = GliderCheckBox->Checked; break;
+    case CATEGORY_ULTRALIGHT: showAircraft = UltralightCheckBox->Checked; break;
+    case CATEGORY_GENERAL_AVIATION:
+    case CATEGORY_UNKNOWN:
+    default:
+      showAircraft = GeneralAviationCheckBox->Checked;
+      break;
+  }
+
+  return showAircraft;
+}
+
+void TForm1::BuildAircraftBatches(int &ViewableAircraft)
+{
+  const void *Key;
+  ght_iterator_t iterator;
+  TADS_B_Aircraft* Data;
+
+  m_planeBatch.clear();
+  m_lineBatch.clear();
+  m_textBatch.clear();
+
+  for(Data = FAircraftModel->GetFirstAircraft(&iterator, &Key);
+      Data; Data = FAircraftModel->GetNextAircraft(&iterator, &Key))
+  {
+    if (!Data->HaveLatLon) continue;
+
+    const RouteInfo* route = nullptr;
+    if (!filterAirline.IsEmpty() || !filterOrigin.IsEmpty() || !filterDestination.IsEmpty())
+    {
+      auto it = callSignToRoute.find(AnsiString(Data->FlightNum).c_str());
+      route = (it != callSignToRoute.end()) ? it->second : nullptr;
+      if (!IsRouteMatched(route))
+        continue;
+    }
+
+    if (!ShouldDisplayAircraft(Data, route))
+      continue;
+
+    ViewableAircraft++;
+
+    double ScrX, ScrY, ScrX2, ScrY2;
+    LatLon2XY(Data->Latitude, Data->Longitude, ScrX, ScrY);
+    ScrX2 = ScrX; ScrY2 = ScrY;
+
+    float color[4] = {1.0f,1.0f,1.0f,1.0f};
+    bool isPartOfSelectedPair = (Data->ICAO == FSelectedConflictPair.first || Data->ICAO == FSelectedConflictPair.second);
+
+    if (aircraft_is_helicopter(Data->ICAO, NULL))
+      { color[0]=0.0f; color[1]=1.0f; color[2]=0.0f; }
+    else if (aircraft_is_military(Data->ICAO, NULL))
+      { color[0]=1.0f; color[1]=0.0f; color[2]=0.0f; }
+
+    if (Data->HaveSpeedAndHeading)
+    {
+      color[0]=1.0f; color[1]=0.0f; color[2]=1.0f; color[3]=1.0f;
+      if (TimeToGoCheckBox->State==cbChecked)
+      {
+        double lat2,lon2,az2;
+        VDirect(Data->Latitude,Data->Longitude,
+                Data->Heading,Data->Speed*(double)TimeToGoTrackBar->Position/3600.0,&lat2,&lon2,&az2);
+        LatLon2XY(lat2,lon2, ScrX2, ScrY2);
+      }
+    }
+    else
+    {
+      Data->Heading=0.0;
+      color[0]=1.0f; color[1]=0.0f; color[2]=0.0f; color[3]=1.0f;
+    }
+
+    if (isPartOfSelectedPair)
+    {
+      color[0]=0.0f; color[1]=1.0f; color[2]=1.0f;
+    }
+    else if (FConflictMap.count(Data->ICAO))
+    {
+      color[0]=0.0f; color[1]=0.0f; color[2]=1.0f;
+    }
+
+    AirplaneInstance inst;
+    inst.x = ScrX; inst.y = ScrY; inst.scale = 1.5f;
+    if (Data->HaveAltitude)
+    {
+      if (Data->Altitude > 30000) inst.scale = 1.0f;
+      else if (Data->Altitude < 10000) inst.scale = 2.0f;
+    }
+    inst.heading = Data->Heading;
+    inst.imageNum = SelectAircraftIcon(Data);
+    inst.color[0] = color[0]; inst.color[1] = color[1]; inst.color[2] = color[2]; inst.color[3] = color[3];
+    m_planeBatch.push_back(inst);
+
+    AirplaneLineInstance line; line.x1 = ScrX; line.y1 = ScrY; line.x2 = ScrX2; line.y2 = ScrY2;
+    m_lineBatch.push_back(line);
+
+    for(int i=0; i<6 && Data->HexAddr[i]; ++i)
+    {
+      HexCharInstance tc;
+      tc.x = ScrX + 40 + i * (HEX_FONT_WIDTH - 15) * GetHexTextScale();
+      tc.y = ScrY - 10;
+      char c = Data->HexAddr[i];
+      if(c >= '0' && c <= '9') tc.glyph = c - '0';
+      else if(c >= 'A' && c <= 'F') tc.glyph = 10 + (c - 'A');
+      else tc.glyph = 0;
+      tc.color[0] = color[0]; tc.color[1] = color[1]; tc.color[2] = color[2]; tc.color[3] = color[3];
+      m_textBatch.push_back(tc);
+    }
+  }
+}
+
+void TForm1::RenderAircraftBatches()
+{
+  // for (const auto& line : m_lineBatch)
+  // {
+  //   TADS_B_Aircraft* aircraft = FAircraftModel->FindAircraftByICAO(TrackHook.ICAO_CC);
+  //   if (aircraft && aircraft_is_military(aircraft->ICAO, NULL))
+  //     DrawLeaderThick(line.x1, line.y1, line.x2, line.y2, 4.0f);
+  //   else if (aircraft && aircraft_is_helicopter(aircraft->ICAO, NULL))
+  //     DrawLeaderDashed(line.x1, line.y1, line.x2, line.y2);
+  //   else
+  //     DrawLeaderArrow(line.x1, line.y1, line.x2, line.y2, 8.0f);
+  // }
+
+  DrawAirplaneLinesInstanced(m_lineBatch);
+  DrawAirplaneImagesInstanced(m_planeBatch);
+  DrawHexTextInstanced(m_textBatch);
+}
+
+void TForm1::UpdateTrackHookDisplay()
+{
+  TADS_B_Aircraft* Data = nullptr;
+  double ScrX,ScrY;
+  if (TrackHook.Valid_CC)
+  {
+    Data = FAircraftModel->FindAircraftByICAO(TrackHook.ICAO_CC);
+    if (Data)
+    {
+      ICAOLabel->Caption=Data->HexAddr;
+      if (Data->HaveFlightNum) FlightNumLabel->Caption=Data->FlightNum; else FlightNumLabel->Caption="N/A";
+      std::string airline, country;
+      if (LookupAirline(AnsiString(Data->FlightNum).Trim().UpperCase().c_str(), airline, country))
+      {
+        AirlineNameLabel->Caption = airline.c_str();
+        AirlineCountryLabel->Caption = country.c_str();
+      }
+      else
+      {
+        AirlineNameLabel->Caption = "N/A";
+        AirlineCountryLabel->Caption = "N/A";
+      }
+      if (Data->HaveLatLon)
+      {
+        CLatLabel->Caption=DMS::DegreesMinutesSecondsLat(Data->Latitude).c_str();
+        CLonLabel->Caption=DMS::DegreesMinutesSecondsLon(Data->Longitude).c_str();
+      }
+      else
+      {
+        CLatLabel->Caption="N/A";
+        CLonLabel->Caption="N/A";
+      }
+      if (Data->HaveSpeedAndHeading)
+      {
+        SpdLabel->Caption=FloatToStrF(Data->Speed, ffFixed,12,2)+" KTS VRATE:"+FloatToStrF(Data->VerticalRate,ffFixed,12,2);
+        HdgLabel->Caption=FloatToStrF(Data->Heading, ffFixed,12,2)+" DEG";
+      }
+      else
+      {
+        SpdLabel->Caption="N/A";
+        HdgLabel->Caption="N/A";
+      }
+      if (Data->Altitude)
+        AltLabel->Caption= FloatToStrF(Data->Altitude, ffFixed,12,2)+"FT";
+      else AltLabel->Caption="N/A";
+
+      MsgCntLabel->Caption="Raw: "+IntToStr((int)Data->NumMessagesRaw)+" SBS: "+IntToStr((int)Data->NumMessagesSBS);
+      TrkLastUpdateTimeLabel->Caption=TimeToChar(Data->LastSeen);
+
+      glColor4f(1.0, 0.0, 0.0, 1.0);
+      LatLon2XY(Data->Latitude,Data->Longitude, ScrX, ScrY);
+      DrawTrackHook(ScrX, ScrY);
+    }
+  }
+  else
+  {
+    TrackHook.Valid_CC=false;
+    ICAOLabel->Caption="N/A";
+    FlightNumLabel->Caption="N/A";
+    AircraftModelLabel->Caption="N/A";
+    AirlineNameLabel->Caption="N/A";
+    AirlineCountryLabel->Caption="N/A";
+    CLatLabel->Caption="N/A";
+    CLonLabel->Caption="N/A";
+    SpdLabel->Caption="N/A";
+    HdgLabel->Caption="N/A";
+    AltLabel->Caption="N/A";
+    MsgCntLabel->Caption="N/A";
+    TrkLastUpdateTimeLabel->Caption="N/A";
+  }
+}
+
+void TForm1::DrawCPAVisualization()
+{
+  if (!TrackHook.Valid_CPA) return;
+  bool CpaDataIsValid=false;
+  TADS_B_Aircraft* Data = FAircraftModel->FindAircraftByICAO(TrackHook.ICAO_CC);
+  TADS_B_Aircraft* DataCPA= FAircraftModel->FindAircraftByICAO(TrackHook.ICAO_CPA);
+  double ScrX,ScrY;
+  if ((DataCPA) && (TrackHook.Valid_CC) && Data)
+  {
+    double tcpa,cpa_distance_nm, vertical_cpa;
+    double lat1, lon1,lat2, lon2, junk;
+    if (computeCPA(Data->Latitude, Data->Longitude, Data->Altitude,
+                   Data->Speed,Data->Heading,
+                   DataCPA->Latitude, DataCPA->Longitude,DataCPA->Altitude,
+                   DataCPA->Speed,DataCPA->Heading,
+                   tcpa,cpa_distance_nm, vertical_cpa))
+    {
+      if (VDirect(Data->Latitude,Data->Longitude,
+                  Data->Heading,Data->Speed/3600.0*tcpa,&lat1,&lon1,&junk)==OKNOERROR)
+      {
+        if (VDirect(DataCPA->Latitude,DataCPA->Longitude,
+                    DataCPA->Heading,DataCPA->Speed/3600.0*tcpa,&lat2,&lon2,&junk)==OKNOERROR)
+        {
+          glColor4f(0.0, 1.0, 0.0, 1.0);
+          glBegin(GL_LINE_STRIP);
+          LatLon2XY(Data->Latitude,Data->Longitude, ScrX, ScrY);
+          glVertex2f(ScrX, ScrY);
+          LatLon2XY(lat1,lon1, ScrX, ScrY);
+          glVertex2f(ScrX, ScrY);
+          glEnd();
+          glBegin(GL_LINE_STRIP);
+          LatLon2XY(DataCPA->Latitude,DataCPA->Longitude, ScrX, ScrY);
+          glVertex2f(ScrX, ScrY);
+          LatLon2XY(lat2,lon2, ScrX, ScrY);
+          glVertex2f(ScrX, ScrY);
+          glEnd();
+          glColor4f(1.0, 0.0, 0.0, 1.0);
+          glBegin(GL_LINE_STRIP);
+          LatLon2XY(lat1,lon1, ScrX, ScrY);
+          glVertex2f(ScrX, ScrY);
+          LatLon2XY(lat2,lon2, ScrX, ScrY);
+          glVertex2f(ScrX, ScrY);
+          glEnd();
+          CpaTimeValue->Caption=TimeToChar(tcpa*1000);
+          CpaDistanceValue->Caption= FloatToStrF(cpa_distance_nm, ffFixed,10,2)+" NM VDIST: "+IntToStr((int)vertical_cpa)+" FT";
+          CpaDataIsValid=true;
+        }
+      }
+    }
+  }
+  if (!CpaDataIsValid)
+  {
+    TrackHook.Valid_CPA=false;
+    CpaTimeValue->Caption="None";
+    CpaDistanceValue->Caption="None";
+  }
+}
+
+void TForm1::DrawSelectedRoutes()
+{
+  if (m_selectedRoutePaths.empty()) return;
+  glLineWidth(2.0f);
+  glColor4f(1.0f, 1.0f, 0.0f, 1.0f);
+  for (const auto& seg : m_selectedRoutePaths)
+  {
+    if (seg.size() < 2) continue;
+    double px = 0, py = 0;
+    glBegin(GL_LINE_STRIP);
+    for (size_t i = 0; i < seg.size(); ++i)
+    {
+      double x,y; LatLon2XY(seg[i].first, seg[i].second, x, y);
+      glVertex2f(x, y); if (i == seg.size() - 2) { px = x; py = y; }
+    }
+    glEnd();
+    double xe, ye; LatLon2XY(seg.back().first, seg.back().second, xe, ye);
+    DrawLeaderArrow(px, py, xe, ye, 10.0f);
+  }
+  glLineWidth(1.0f);
+}
+
+void TForm1::DrawSelectedConflictPair()
+{
+  if (FSelectedConflictPair.first == 0) return;
+  TADS_B_Aircraft* ac1 = FAircraftModel->FindAircraftByICAO(FSelectedConflictPair.first);
+  TADS_B_Aircraft* ac2 = FAircraftModel->FindAircraftByICAO(FSelectedConflictPair.second);
+  if (ac1 && ac2 && ac1->HaveLatLon && ac2->HaveLatLon)
+  {
+    double tcpa = 0;
+    double cpa_distance_nm = 0;
+    bool found = false;
+    if (FConflictMap.count(ac1->ICAO))
+    {
+      for (const auto& info : FConflictMap.at(ac1->ICAO))
+      {
+        if (info.otherAircraftICAO == ac2->ICAO)
+        {
+          tcpa = info.timeToCPA;
+          cpa_distance_nm = info.cpaDistance;
+          found = true;
+          break;
+        }
+      }
+    }
+    if (found)
+    {
+      double lat1, lon1, lat2, lon2, junk;
+      VDirect(ac1->Latitude, ac1->Longitude, ac1->Heading, ac1->Speed / 3600.0 * tcpa, &lat1, &lon1, &junk);
+      VDirect(ac2->Latitude, ac2->Longitude, ac2->Heading, ac2->Speed / 3600.0 * tcpa, &lat2, &lon2, &junk);
+      double x1_curr, y1_curr, x1_fut, y1_fut;
+      double x2_curr, y2_curr, x2_fut, y2_fut;
+      LatLon2XY(ac1->Latitude, ac1->Longitude, x1_curr, y1_curr);
+      LatLon2XY(lat1, lon1, x1_fut, y1_fut);
+      LatLon2XY(ac2->Latitude, ac2->Longitude, x2_curr, y2_curr);
+      LatLon2XY(lat2, lon2, x2_fut, y2_fut);
+      glLineWidth(3.0);
+      glColor4f(0.0, 1.0, 0.0, 0.6);
+      glBegin(GL_LINES);
+      glVertex2d(x1_curr, y1_curr); glVertex2d(x1_fut, y1_fut);
+      glVertex2d(x2_curr, y2_curr); glVertex2d(x2_fut, y2_fut);
+      glEnd();
+      glLineWidth(5.0);
+      glColor4f(1.0, 0.0, 0.0, 0.8);
+      glBegin(GL_LINES);
+      glVertex2d(x1_fut, y1_fut);
+      glVertex2d(x2_fut, y2_fut);
+      glEnd();
+    }
+  }
+}
+
+void __fastcall TForm1::DrawObjects(void)
+{
+  int ViewableAircraft = 0;
+
+  SetupRenderingState();
+  DrawMapCenterCross();
+  DrawTemporaryArea();
+  DrawDefinedAreas();
+  BuildAircraftBatches(ViewableAircraft);
+  RenderAircraftBatches();
+  ViewableAircraftCountLabel->Caption = ViewableAircraft;
+  UpdateTrackHookDisplay();
+  DrawCPAVisualization();
+  DrawSelectedRoutes();
+  DrawSelectedConflictPair();
+}
 bool TForm1::IsRouteMatched(const RouteInfo* route) const {
     if (!route) return false;
     if (!filterAirline.IsEmpty() && AnsiString(route->airlineCode.c_str()).UpperCase() != filterAirline.UpperCase())
