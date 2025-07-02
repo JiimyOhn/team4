@@ -1130,9 +1130,11 @@ void __fastcall TAircraftRenderThread::Execute()
   while(!Terminated)
   {
     RenderThreadParams params;
+    bool check_dead_reckoning = false;
     {
       std::lock_guard<std::mutex> lock(FOwner->m_renderInfoMutex);
       params = FOwner->m_renderParams;
+      check_dead_reckoning = FOwner->DeadReckoningCheckBox->Checked;
     }
 
     std::unordered_map<unsigned int, AircraftRenderInfo> local;
@@ -1208,6 +1210,27 @@ void __fastcall TAircraftRenderThread::Execute()
     {
       std::lock_guard<std::mutex> lock(FOwner->m_renderInfoMutex);
       FOwner->m_renderInfoTable.swap(local);
+    }
+
+     if (check_dead_reckoning)
+    {
+      double futureLat, futureLon, junk;
+      double diff_time;
+      __int64 cur_time = GetCurrentTimeInMsec();
+
+      for(Data = FOwner->FAircraftModel->GetFirstAircraft(&iterator, &Key);
+          Data; Data = FOwner->FAircraftModel->GetNextAircraft(&iterator, &Key))
+      {
+        diff_time = (cur_time - Data->LastSeen) / 1000.0 / 3600;
+        if (VDirect(Data->Latitude, Data->Longitude,
+                   Data->Heading, Data->Speed * diff_time,
+                   &futureLat, &futureLon, &junk) == OKNOERROR)
+        {
+          Data->LastSeen = cur_time;
+          Data->Latitude = futureLat;
+          Data->Longitude = futureLon;  
+        }
+      }
     }
 
     TThread::Sleep(5);
@@ -1806,6 +1829,7 @@ void __fastcall TForm1::ZoomOutClick(TObject *Sender)
 void __fastcall TForm1::Timer2Timer(TObject *Sender)
 {
     if (PurgeStale->Checked == false) return;
+    if (FOwner->DeadReckoningCheckBox->Checked) return;
 
     // Model에게 "오래된 항공기 삭제" 작업을 위임
     FAircraftModel->PurgeStaleAircraft(CSpinStaleTime->Value);
@@ -1814,6 +1838,7 @@ void __fastcall TForm1::Timer2Timer(TObject *Sender)
 void __fastcall TForm1::PurgeButtonClick(TObject *Sender)
 {
     // 1. Model에게 "모든 항공기 삭제" 작업을 위임
+    if (FOwner->DeadReckoningCheckBox->Checked) return;
     m_selectedRoutePaths.clear();
     FAircraftModel->PurgeAllAircraft();
     

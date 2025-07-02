@@ -1478,6 +1478,14 @@ object Form1: TForm1
             OnClick = ShowOnlyConflictAircraftCheckBoxClick
           end
         end
+        object DeadReckoningCheckBox: TCheckBox
+          Left = 16
+          Top = 576
+          Width = 185
+          Height = 17
+          Caption = 'DeadReckoning'
+          TabOrder = 11
+        end
       end
     end
   end

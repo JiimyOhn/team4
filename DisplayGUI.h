@@ -269,6 +269,7 @@ __published:	// IDE-managed Components
     TCheckBox *BusinessJetCheckBox;
     TCheckBox *GliderCheckBox;
     TCheckBox *UltralightCheckBox;
+	TCheckBox *DeadReckoningCheckBox;
     void __fastcall AircraftCategoryFilterChange(TObject *Sender);
     void __fastcall SpeedFilterTrackBarChange(TObject *Sender);
     void __fastcall AltitudeFilterTrackBarChange(TObject *Sender);
